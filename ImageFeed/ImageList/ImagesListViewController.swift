@@ -30,16 +30,19 @@ class ImagesListViewController: UIViewController {
     
     func configCell(for cell: ImageListCell, with indexPath: IndexPath ) {
         
-        // Отображаем картинку если она есть
+        // Номер строки совпадает с названием файла в моках
         let imageName = photosNames[indexPath.row]
-        print("Пытаемся загрузить изображение: '\(imageName)'")
         
         if UIImage(named: imageName) != nil {
-            print("Изображение '\(imageName)' найдено в бандле")
+            
             cell.picture.image = UIImage(named: imageName)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                cell.addGradientIfNeeded()
+            }
+            
         } else {
-            print("Изображение '\(imageName)' НЕ найдено в бандле")
-            // Установите заглушку
+            
             cell.picture.image = UIImage(systemName: "photo")
         }
         

@@ -12,11 +12,41 @@ final class ImageListCell: UITableViewCell {
     
     @IBOutlet var likeBtn: UIButton!
     @IBOutlet var picture: UIImageView!
-    //    @IBOutlet weak var likeBtn: UIButton!
     @IBOutlet var publishDate: UILabel!
-    //    @IBOutlet weak var picture: UIImageView!
-//    @IBOutlet weak var publishDate: UILabel!
     
     static let reuseIdentifier = "ImageListCell"
+    private var gradientAdded = false
     
+    func addGradientIfNeeded() {
+        
+        guard !gradientAdded, picture.bounds.width > 0 else { return }
+        
+        picture.layer.sublayers?.removeAll { $0 is CAGradientLayer }
+        
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.frame = CGRect(
+            x: 0,
+            y: picture.bounds.height - 30,
+            width: picture.bounds.width,
+            height: 30
+        )
+        
+        gradientLayer.colors = [
+            UIColor(red: 26/255, green: 27/255, blue: 34/255, alpha: 0.5).cgColor,
+            UIColor(red: 26/255, green: 27/255, blue: 34/255, alpha: 0).cgColor
+        ]
+        
+        gradientLayer.locations = [0.0, 1.0]
+        gradientLayer.startPoint = CGPoint(x: 0.5, y: 1.0)
+        gradientLayer.endPoint = CGPoint(x: 0.5, y: 0.0)
+        gradientLayer.zPosition = 1000
+        
+        picture.layer.addSublayer(gradientLayer)
+        gradientAdded = true
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        gradientAdded = false
+    }
 }
