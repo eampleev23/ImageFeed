@@ -12,6 +12,7 @@ class ImagesListViewController: UIViewController {
     @IBOutlet private var tableView: UITableView!
     
     private let photosNames: [String] = Array(0..<20).map{ "\($0)" }
+    private var heightCache: [IndexPath: CGFloat] = [:]
     
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -53,6 +54,40 @@ class ImagesListViewController: UIViewController {
 extension ImagesListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {}
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat{
+        
+        if let cacheHeight = heightCache[indexPath] {
+            return cacheHeight
+        }
+        
+        let imageName = photosNames[indexPath.row]
+        let image = UIImage(named: imageName)
+        
+        // Вычисляем высоту изображения
+        let imageViewHeight: CGFloat
+        
+        if let image = image {
+            
+            let tableViewWidth = tableView.frame.width
+            let horizontalPadding: CGFloat = 16
+            let availableWidth = tableViewWidth - (horizontalPadding * 2)
+            
+            let aspectRatio = image.size.height / image.size.width
+            imageViewHeight = availableWidth * aspectRatio
+            
+        } else {
+            
+            imageViewHeight = 200 // или высота placeholder
+        }
+        
+        let verticalPadding: CGFloat = 32
+        let totalHeight = imageViewHeight + verticalPadding
+        
+        heightCache[indexPath] = totalHeight
+        
+        return totalHeight
+    }
     
 }
 
