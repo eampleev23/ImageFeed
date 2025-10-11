@@ -24,8 +24,7 @@ class ImagesListViewController: UIViewController {
         
         super.viewDidLoad()
         tableView.rowHeight = 200
-        tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
-        
+        tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
     }
     
     func configCell(for cell: ImageListCell, with indexPath: IndexPath ) {

@@ -49,4 +49,13 @@ final class ImageListCell: UITableViewCell {
         super.prepareForReuse()
         gradientAdded = false
     }
+    
+    // В классе ImageListCell:
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        // Создаем отступы внутри ячейки
+        let insets = UIEdgeInsets(top: 0, left: 0, bottom: 8, right: 0)
+        contentView.frame = contentView.frame.inset(by: insets)
+    }
 }
