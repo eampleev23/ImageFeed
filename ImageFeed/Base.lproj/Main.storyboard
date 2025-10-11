@@ -38,21 +38,24 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dN5-tk-AjP" userLabel="Like Button">
-                                                    <rect key="frame" x="301" y="-8" width="68" height="58"/>
+                                                    <rect key="frame" x="307" y="-12" width="68" height="58"/>
                                                     <state key="normal" title="Button"/>
-                                                    <buttonConfiguration key="configuration" style="plain" image="Active.png"/>
+                                                    <buttonConfiguration key="configuration" style="plain" image="NoActiveSVG"/>
+                                                    <connections>
+                                                        <action selector="likeButtonTapped:" destination="3Xy-dd-7c5" eventType="touchUpInside" id="raZ-20-dXr"/>
+                                                    </connections>
                                                 </button>
                                             </subviews>
                                             <color key="backgroundColor" name="YP Black"/>
                                             <constraints>
-                                                <constraint firstAttribute="trailing" secondItem="dN5-tk-AjP" secondAttribute="trailing" constant="-8" id="399-LQ-eQ1"/>
+                                                <constraint firstAttribute="trailing" secondItem="dN5-tk-AjP" secondAttribute="trailing" constant="-14" id="399-LQ-eQ1"/>
                                                 <constraint firstAttribute="bottom" secondItem="bvX-sa-vgG" secondAttribute="bottom" constant="8" id="TNe-qW-a3L"/>
                                                 <constraint firstAttribute="trailing" secondItem="Cn9-iW-hab" secondAttribute="trailing" id="VZf-Zq-IAT"/>
                                                 <constraint firstAttribute="bottom" secondItem="Cn9-iW-hab" secondAttribute="bottom" id="cMc-8K-ADs"/>
                                                 <constraint firstItem="Cn9-iW-hab" firstAttribute="top" secondItem="ege-8G-5cK" secondAttribute="top" id="cQi-rg-ZLq"/>
                                                 <constraint firstItem="bvX-sa-vgG" firstAttribute="leading" secondItem="ege-8G-5cK" secondAttribute="leading" constant="8" id="lJI-KH-99Q"/>
                                                 <constraint firstItem="Cn9-iW-hab" firstAttribute="leading" secondItem="ege-8G-5cK" secondAttribute="leading" id="nGp-Hy-fWg"/>
-                                                <constraint firstItem="dN5-tk-AjP" firstAttribute="top" secondItem="ege-8G-5cK" secondAttribute="top" constant="-8" id="rAe-Ud-ETi"/>
+                                                <constraint firstItem="dN5-tk-AjP" firstAttribute="top" secondItem="ege-8G-5cK" secondAttribute="top" constant="-12" id="rAe-Ud-ETi"/>
                                             </constraints>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
@@ -96,7 +99,7 @@
     </scenes>
     <resources>
         <image name="1.jpg" width="985" height="1280"/>
-        <image name="Active.png" width="44" height="44"/>
+        <image name="NoActiveSVG" width="44" height="44"/>
         <namedColor name="YP Black">
             <color red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

@@ -14,8 +14,25 @@ final class ImageListCell: UITableViewCell {
     @IBOutlet var picture: UIImageView!
     @IBOutlet var publishDate: UILabel!
     
+    @IBAction func likeButtonTapped(_ sender: Any) {
+        isLiked.toggle()
+    }
+    
     static let reuseIdentifier = "ImageListCell"
     private var gradientAdded = false
+    
+    var isLiked: Bool = false {
+        didSet{
+            updateLikeButtonAppearance()
+        }
+    }
+    
+    private func updateLikeButtonAppearance() {
+        let imageName = isLiked ? "ActiveSVG" : "NoActiveSVG"
+        let image = UIImage(named: imageName)
+        
+        likeBtn.setImage(image, for: .normal)
+    }
     
     func addGradientIfNeeded() {
         
@@ -48,6 +65,7 @@ final class ImageListCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         gradientAdded = false
+        isLiked = false
     }
     
     // В классе ImageListCell:

@@ -28,10 +28,10 @@ class ImagesListViewController: UIViewController {
         tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
     }
     
-    func configCell(for cell: ImageListCell, with indexPath: IndexPath ) {
-        
-        // Номер строки совпадает с названием файла в моках
+    func configCell(for cell: ImageListCell, with indexPath: IndexPath, isLiked: Bool ) {
+
         let imageName = photosNames[indexPath.row]
+        cell.isLiked = isLiked
         
         if UIImage(named: imageName) != nil {
             
@@ -105,7 +105,9 @@ extension ImagesListViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        configCell(for: imageListCell, with: indexPath)
+        let isLiked = indexPath.row % 2 == 0
+        
+        configCell(for: imageListCell, with: indexPath, isLiked: isLiked)
         return imageListCell
     }
 }
