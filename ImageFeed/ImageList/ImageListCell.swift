@@ -14,10 +14,6 @@ final class ImageListCell: UITableViewCell {
     @IBOutlet var picture: UIImageView!
     @IBOutlet var publishDate: UILabel!
     
-    @IBAction func likeButtonTapped(_ sender: Any) {
-        isLiked.toggle()
-    }
-    
     static let reuseIdentifier = "ImageListCell"
     private var gradientAdded = false
     
@@ -25,6 +21,23 @@ final class ImageListCell: UITableViewCell {
         didSet{
             updateLikeButtonAppearance()
         }
+    }
+    
+    @IBAction func likeButtonTapped(_ sender: Any) {
+        isLiked.toggle()
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        gradientAdded = false
+        isLiked = false
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        let insets = UIEdgeInsets(top: 0, left: 0, bottom: 8, right: 0)
+        contentView.frame = contentView.frame.inset(by: insets)
     }
     
     private func updateLikeButtonAppearance() {
@@ -60,20 +73,5 @@ final class ImageListCell: UITableViewCell {
         
         picture.layer.addSublayer(gradientLayer)
         gradientAdded = true
-    }
-    
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        gradientAdded = false
-        isLiked = false
-    }
-    
-    // В классе ImageListCell:
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        // Создаем отступы внутри ячейки
-        let insets = UIEdgeInsets(top: 0, left: 0, bottom: 8, right: 0)
-        contentView.frame = contentView.frame.inset(by: insets)
     }
 }

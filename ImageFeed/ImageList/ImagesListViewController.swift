@@ -29,7 +29,7 @@ class ImagesListViewController: UIViewController {
     }
     
     func configCell(for cell: ImageListCell, with indexPath: IndexPath, isLiked: Bool ) {
-
+        
         let imageName = photosNames[indexPath.row]
         cell.isLiked = isLiked
         
