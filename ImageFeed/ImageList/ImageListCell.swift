@@ -15,6 +15,9 @@ final class ImageListCell: UITableViewCell {
     @IBOutlet var publishDate: UILabel!
     
     static let reuseIdentifier = "ImageListCell"
+    
+    private let gradientHeight:CGFloat = 30
+    
     private var gradientAdded = false
     
     var isLiked: Bool = false {
@@ -40,13 +43,6 @@ final class ImageListCell: UITableViewCell {
         contentView.frame = contentView.frame.inset(by: insets)
     }
     
-    private func updateLikeButtonAppearance() {
-        let imageName = isLiked ? "ActiveSVG" : "NoActiveSVG"
-        let image = UIImage(named: imageName)
-        
-        likeBtn.setImage(image, for: .normal)
-    }
-    
     func addGradientIfNeeded() {
         
         guard !gradientAdded, picture.bounds.width > 0 else { return }
@@ -56,9 +52,9 @@ final class ImageListCell: UITableViewCell {
         let gradientLayer = CAGradientLayer()
         gradientLayer.frame = CGRect(
             x: 0,
-            y: picture.bounds.height - 30,
+            y: picture.bounds.height - gradientHeight,
             width: picture.bounds.width,
-            height: 30
+            height: gradientHeight
         )
         
         gradientLayer.colors = [
@@ -73,5 +69,12 @@ final class ImageListCell: UITableViewCell {
         
         picture.layer.addSublayer(gradientLayer)
         gradientAdded = true
+    }
+    
+    private func updateLikeButtonAppearance() {
+        let imageName = isLiked ? "ActiveSVG" : "NoActiveSVG"
+        let image = UIImage(named: imageName)
+        
+        likeBtn.setImage(image, for: .normal)
     }
 }

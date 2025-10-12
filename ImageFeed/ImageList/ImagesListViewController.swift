@@ -7,11 +7,13 @@
 
 import UIKit
 
-class ImagesListViewController: UIViewController {
+final class ImagesListViewController: UIViewController {
     
     @IBOutlet private var tableView: UITableView!
     
     private let photosNames: [String] = Array(0..<20).map{ "\($0)" }
+    private let defaultCellHeight: CGFloat = 200
+    
     private var heightCache: [IndexPath: CGFloat] = [:]
     
     private lazy var dateFormatter: DateFormatter = {
@@ -24,11 +26,11 @@ class ImagesListViewController: UIViewController {
     override func viewDidLoad() {
         
         super.viewDidLoad()
-        tableView.rowHeight = 200
+        tableView.rowHeight = defaultCellHeight
         tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
     }
     
-    func configCell(for cell: ImageListCell, with indexPath: IndexPath, isLiked: Bool ) {
+    private func configCell(for cell: ImageListCell, with indexPath: IndexPath, isLiked: Bool ) {
         
         let imageName = photosNames[indexPath.row]
         cell.isLiked = isLiked
@@ -53,7 +55,9 @@ class ImagesListViewController: UIViewController {
 
 extension ImagesListViewController: UITableViewDelegate {
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {}
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // TODO:
+    }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat{
         
@@ -64,10 +68,9 @@ extension ImagesListViewController: UITableViewDelegate {
         let imageName = photosNames[indexPath.row]
         let image = UIImage(named: imageName)
         
-        // Вычисляем высоту изображения
         let imageViewHeight: CGFloat
         
-        if let image = image {
+        if let image {
             
             let tableViewWidth = tableView.frame.width
             let horizontalPadding: CGFloat = 16
@@ -78,7 +81,7 @@ extension ImagesListViewController: UITableViewDelegate {
             
         } else {
             
-            imageViewHeight = 200 // или высота placeholder
+            imageViewHeight = defaultCellHeight
         }
         
         let verticalPadding: CGFloat = 32
@@ -94,7 +97,7 @@ extension ImagesListViewController: UITableViewDelegate {
 extension ImagesListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return photosNames.count
+        photosNames.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
