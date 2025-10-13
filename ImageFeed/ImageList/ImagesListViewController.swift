@@ -11,6 +11,8 @@ final class ImagesListViewController: UIViewController {
     
     @IBOutlet private var tableView: UITableView!
     
+    private let showSingleImageSegueIdentifier = "ShowSingleImage"
+    
     private let photosNames: [String] = Array(0..<20).map{ "\($0)" }
     private let defaultCellHeight: CGFloat = 200
     
@@ -32,7 +34,7 @@ final class ImagesListViewController: UIViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
-        if segue.identifier == "ShowSingleImage" {
+        if segue.identifier == showSingleImageSegueIdentifier {
             
             guard
                 let viewController = segue.destination as? SingleImageViewController,
@@ -76,7 +78,7 @@ final class ImagesListViewController: UIViewController {
 extension ImagesListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        performSegue(withIdentifier: "ShowSingleImage", sender: indexPath)
+        performSegue(withIdentifier: showSingleImageSegueIdentifier, sender: indexPath)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat{
