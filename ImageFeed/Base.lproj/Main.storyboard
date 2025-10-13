@@ -91,7 +91,7 @@
                     <navigationItem key="navigationItem" id="GdF-R0-TDC"/>
                     <connections>
                         <outlet property="tableView" destination="RUa-sl-gv7" id="bFr-VN-DG7"/>
-                        <segue destination="3m7-28-Wwe" kind="show" identifier="ShowSingleImage" id="UFP-3O-K2G"/>
+                        <segue destination="3m7-28-Wwe" kind="presentation" identifier="ShowSingleImage" id="UFP-3O-K2G"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -159,11 +159,11 @@
             <objects>
                 <viewController id="3m7-28-Wwe" customClass="SingleImageViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="GNs-bs-bjl">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="769"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="0" translatesAutoresizingMaskIntoConstraints="NO" id="dc6-hI-oRs">
-                                <rect key="frame" x="0.0" y="103" width="393" height="666"/>
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="c2i-yg-DkW"/>
