@@ -30,6 +30,26 @@ final class ImagesListViewController: UIViewController {
         tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier == "ShowSingleImage" {
+            
+            guard
+                let viewController = segue.destination as? SingleImageViewController,
+                let indexPath = sender as? IndexPath
+            else {
+                assertionFailure("Invalid segue destination")
+                return
+            }
+            let image = UIImage(named: photosNames[indexPath.row])
+            viewController.image = image
+            
+        } else {
+            
+            super.prepare(for: segue, sender: sender)
+        }
+    }
+    
     private func configCell(for cell: ImageListCell, with indexPath: IndexPath, isLiked: Bool ) {
         
         let imageName = photosNames[indexPath.row]
@@ -56,15 +76,7 @@ final class ImagesListViewController: UIViewController {
 extension ImagesListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("✅ Ячейка tapped: \(indexPath.row)")
-        
-        // Временно показываем выделение
-        if let cell = tableView.cellForRow(at: indexPath) {
-            cell.isSelected = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                cell.isSelected = false
-            }
-        }
+        performSegue(withIdentifier: "ShowSingleImage", sender: indexPath)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat{
