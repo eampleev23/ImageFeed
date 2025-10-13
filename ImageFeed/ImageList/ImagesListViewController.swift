@@ -56,7 +56,15 @@ final class ImagesListViewController: UIViewController {
 extension ImagesListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // TODO:
+        print("✅ Ячейка tapped: \(indexPath.row)")
+        
+        // Временно показываем выделение
+        if let cell = tableView.cellForRow(at: indexPath) {
+            cell.isSelected = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                cell.isSelected = false
+            }
+        }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat{
@@ -113,4 +121,5 @@ extension ImagesListViewController: UITableViewDataSource {
         configCell(for: imageListCell, with: indexPath, isLiked: isLiked)
         return imageListCell
     }
+    
 }
