@@ -9,6 +9,7 @@ import UIKit
 
 final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
     
+    @IBOutlet var shareButton: UIButton!
     @IBOutlet private var scrollView: UIScrollView!
     @IBOutlet private var imageView: UIImageView!
     
@@ -17,6 +18,38 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
             guard isViewLoaded else { return }
             setImageAndConfigureLayout()
         }
+    }
+    
+    @IBAction func didTapShareButton(_ sender: Any) {
+        guard let image = image else { return }
+        
+        let activityViewController = UIActivityViewController(
+            activityItems: [image],
+            applicationActivities: nil
+        )
+        
+        // Базовая кастомизация
+        activityViewController.excludedActivityTypes = [
+            .addToReadingList,
+            .assignToContact,
+            .openInIBooks,
+            .markupAsPDF
+        ]
+        
+        // Настройка для iPad
+        if let popoverController = activityViewController.popoverPresentationController {
+            popoverController.sourceView = shareButton
+            popoverController.sourceRect = shareButton.bounds
+            popoverController.permittedArrowDirections = .any
+            popoverController.backgroundColor = .systemBackground
+        }
+        
+        // Стиль как в нативных приложениях
+        if #available(iOS 13.0, *) {
+            activityViewController.isModalInPresentation = true
+        }
+        
+        present(activityViewController, animated: true)
     }
     
     @IBAction func didTapBackButton(_ sender: Any) {

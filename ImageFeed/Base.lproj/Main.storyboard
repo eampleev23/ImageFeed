@@ -188,6 +188,9 @@
                                 <rect key="frame" x="159" y="771" width="75" height="64"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" image="single_image_sharing_button"/>
+                                <connections>
+                                    <action selector="didTapShareButton:" destination="3m7-28-Wwe" eventType="touchUpInside" id="6KH-6v-9T7"/>
+                                </connections>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="c2i-yg-DkW"/>
@@ -207,6 +210,7 @@
                     <connections>
                         <outlet property="imageView" destination="dc6-hI-oRs" id="Xhc-kb-whH"/>
                         <outlet property="scrollView" destination="NRH-bl-Oqf" id="B57-dq-vmk"/>
+                        <outlet property="shareButton" destination="V2J-mP-B5D" id="8PZ-3P-nJK"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2XI-ye-qLr" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
