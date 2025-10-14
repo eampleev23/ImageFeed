@@ -9,6 +9,8 @@ import UIKit
 
 final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
     
+    private var doubleTapGestureRecognizer: UITapGestureRecognizer!
+    
     @IBOutlet var shareButton: UIButton!
     @IBOutlet private var scrollView: UIScrollView!
     @IBOutlet private var imageView: UIImageView!
@@ -64,6 +66,8 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
         scrollView.maximumZoomScale = 3.0
         
         imageView.image = image
+        // Настраиваем распознаватель двойного тапа
+        setupDoubleTapGesture()
         setImageAndConfigureLayout()
     }
     
@@ -72,6 +76,43 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
         centerImage()
     }
     
+    private func setupDoubleTapGesture() {
+        doubleTapGestureRecognizer = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleDoubleTap(_:))
+        )
+        doubleTapGestureRecognizer.numberOfTapsRequired = 2
+        scrollView.addGestureRecognizer(doubleTapGestureRecognizer)
+    }
+    @objc private func handleDoubleTap(_ recognizer: UITapGestureRecognizer) {
+        let tapPoint = recognizer.location(in: imageView)
+        
+        if scrollView.zoomScale > scrollView.minimumZoomScale {
+            // Если уже увеличен - возвращаем к минимальному zoom
+            scrollView.setZoomScale(scrollView.minimumZoomScale, animated: true)
+        } else {
+            // Увеличиваем в 2 раза относительно точки тапа
+            let zoomScale = min(scrollView.maximumZoomScale, 2.0)
+            let zoomRect = zoomRectForScale(
+                scale: zoomScale,
+                center: tapPoint
+            )
+            scrollView.zoom(to: zoomRect, animated: true)
+        }
+    }
+    private func zoomRectForScale(scale: CGFloat, center: CGPoint) -> CGRect {
+        var zoomRect = CGRect.zero
+        
+        // Размер zoomRect относительно scale
+        zoomRect.size.height = imageView.frame.size.height / scale
+        zoomRect.size.width = imageView.frame.size.width / scale
+        
+        // Центрируем относительно точки тапа
+        zoomRect.origin.x = center.x - (zoomRect.size.width / 2.0)
+        zoomRect.origin.y = center.y - (zoomRect.size.height / 2.0)
+        
+        return zoomRect
+    }
     private func setImageAndConfigureLayout() {
         imageView.image = image
         
