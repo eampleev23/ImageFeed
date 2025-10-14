@@ -176,7 +176,7 @@
                                     <outlet property="delegate" destination="3m7-28-Wwe" id="rPf-D7-xiY"/>
                                 </connections>
                             </scrollView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WfS-6v-gK2">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WfS-6v-gK2" userLabel="Back Button">
                                 <rect key="frame" x="0.0" y="46" width="154" height="56"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" image="single_img_back_btn"/>
@@ -184,14 +184,21 @@
                                     <action selector="didTapBackButton:" destination="3m7-28-Wwe" eventType="touchUpInside" id="uVb-Cs-4Nz"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="V2J-mP-B5D" userLabel="Share Button ">
+                                <rect key="frame" x="159" y="771" width="75" height="64"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" image="single_image_sharing_button"/>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="c2i-yg-DkW"/>
                         <color key="backgroundColor" name="YP Black"/>
                         <constraints>
-                            <constraint firstItem="c2i-yg-DkW" firstAttribute="leading" secondItem="NRH-bl-Oqf" secondAttribute="leading" id="GJb-tj-jku"/>
-                            <constraint firstItem="NRH-bl-Oqf" firstAttribute="bottom" secondItem="c2i-yg-DkW" secondAttribute="bottom" id="WFz-DL-K9E"/>
+                            <constraint firstItem="V2J-mP-B5D" firstAttribute="centerX" secondItem="c2i-yg-DkW" secondAttribute="centerX" id="An9-ak-cEm"/>
+                            <constraint firstAttribute="leading" secondItem="NRH-bl-Oqf" secondAttribute="leading" id="GJb-tj-jku"/>
+                            <constraint firstItem="NRH-bl-Oqf" firstAttribute="bottom" secondItem="GNs-bs-bjl" secondAttribute="bottom" constant="20" id="WFz-DL-K9E"/>
                             <constraint firstItem="WfS-6v-gK2" firstAttribute="leading" secondItem="c2i-yg-DkW" secondAttribute="leading" id="ZDm-aV-B20"/>
-                            <constraint firstItem="c2i-yg-DkW" firstAttribute="top" secondItem="NRH-bl-Oqf" secondAttribute="top" id="cPF-I7-R6P"/>
+                            <constraint firstAttribute="bottom" secondItem="V2J-mP-B5D" secondAttribute="bottom" constant="17" id="aak-iF-cm9"/>
+                            <constraint firstAttribute="top" secondItem="NRH-bl-Oqf" secondAttribute="top" constant="20" id="cPF-I7-R6P"/>
                             <constraint firstItem="WfS-6v-gK2" firstAttribute="top" secondItem="c2i-yg-DkW" secondAttribute="top" constant="46" id="gnk-PX-UQp"/>
                             <constraint firstItem="NRH-bl-Oqf" firstAttribute="trailing" secondItem="c2i-yg-DkW" secondAttribute="trailing" id="xKQ-XX-hjR"/>
                         </constraints>
@@ -262,6 +269,7 @@
         <image name="avatar" width="70" height="70"/>
         <image name="feed_active" width="30" height="30"/>
         <image name="profile_active" width="30" height="30"/>
+        <image name="single_image_sharing_button" width="51" height="50"/>
         <image name="single_img_back_btn" width="130" height="42"/>
         <namedColor name="YP Black">
             <color red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
