@@ -113,6 +113,7 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
         
         return zoomRect
     }
+    
     private func setImageAndConfigureLayout() {
         imageView.image = image
         
