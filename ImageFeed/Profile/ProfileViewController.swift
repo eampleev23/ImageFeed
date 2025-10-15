@@ -15,7 +15,16 @@ final class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         
         super.viewDidLoad()
+        showLayOut()
         
+    }
+    
+    @objc
+    private func didTapLogoutBtn(){
+        print("logout_btn tapped")
+    }
+    
+    private func showLayOut() {
         view.backgroundColor = YPColors.black
         
         let profileImage = UIImage(named: "avatar")
@@ -77,12 +86,6 @@ final class ProfileViewController: UIViewController {
         
         logoutBtn.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -16).isActive = true
         logoutBtn.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 45).isActive = true
-        
-    }
-    
-    @objc
-    private func didTapLogoutBtn(){
-        print("logout_btn tapped")
     }
     
 }
