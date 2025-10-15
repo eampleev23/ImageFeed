@@ -74,7 +74,7 @@ final class ProfileViewController: UIViewController {
         greetings.topAnchor.constraint(equalTo: nikname.bottomAnchor, constant: globalTopAnchor).isActive = true
         
         let logoutBtn = UIButton.systemButton(
-            with: UIImage(systemName: "ipad.and.arrow.forward") ?? UIImage(),
+            with: UIImage(named: "logout_btn") ?? UIImage(),
             target: self,
             action: #selector(Self.didTapLogoutBtn))
         
