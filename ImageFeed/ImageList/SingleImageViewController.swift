@@ -62,6 +62,7 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
         super.viewDidLoad()
         
         // Пока устанавливаем временные значения
+        scrollView.contentInsetAdjustmentBehavior = .never
         scrollView.minimumZoomScale = 0.1
         scrollView.maximumZoomScale = 3.0
         
