@@ -30,6 +30,8 @@ final class ImagesListViewController: UIViewController {
         super.viewDidLoad()
         tableView.rowHeight = defaultCellHeight
         tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
+        tableView.showsVerticalScrollIndicator = false
+        tableView.showsHorizontalScrollIndicator = false
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
