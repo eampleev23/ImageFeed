@@ -52,6 +52,7 @@ final class AuthViewController: UIViewController {
         setupView()
         setupConstraints()
         setupButtonTarget()
+//        configureBackButton()
     }
     
     private func setupView(){
@@ -100,5 +101,12 @@ final class AuthViewController: UIViewController {
     private func setupButtonTarget() {
         loginUIButton.addTarget(self, action: #selector(didTapLoginBtn), for: .touchUpInside)
     }
+    
+//    private func configureBackButton() {
+//        navigationController?.navigationBar.backIndicatorImage = UIImage(named: "nav_back_button")
+//        navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(named: "nav_back_button")
+//        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+//        navigationItem.backBarButtonItem?.tintColor = YPColors.black
+//    }
     
 }
