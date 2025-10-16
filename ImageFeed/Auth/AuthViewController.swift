@@ -62,7 +62,7 @@ final class AuthViewController: UIViewController {
     
     @objc
     private func didTapLoginBtn(){
-        print("login_btn tapped")
+        performSegue(withIdentifier: "ShowWebView", sender: self)
     }
     
     private func setupConstraints(){
