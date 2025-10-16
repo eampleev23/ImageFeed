@@ -7,9 +7,17 @@
 
 import UIKit
 
-enum AuthControllerConstants {
+enum AuthConstants {
+    static let translatesAutoresizingMaskIntoConstraints: Bool = false
     static let logoImageViewImageName: String = "logo_of_unsplash"
-    
+    static let loginUIButtonText: String = "Войти"
+    static let loginUIButtonFontSize: CGFloat = 17
+    static let loginUIButtonCornerRadius: CGFloat = 16
+    static let loginUIButtonMasksToBounds: Bool = true
+    static let loginUIButtonLeadingAnchor: CGFloat = 16
+    static let loginUIButtonTrailingAnchor: CGFloat = -16
+    static let loginUIButtonHeightAnchor: CGFloat = 48
+    static let loginUIButtonBottomAnchor: CGFloat = -106
 }
 
 final class AuthViewController: UIViewController {
@@ -17,23 +25,23 @@ final class AuthViewController: UIViewController {
     // MARK: - UI Elements
     private let logoImageView: UIImageView = {
         
-        let imageView = UIImageView(image: UIImage(named: AuthControllerConstants.logoImageViewImageName))
-        imageView.translatesAutoresizingMaskIntoConstraints = false
+        let imageView = UIImageView(image: UIImage(named: AuthConstants.logoImageViewImageName))
+        imageView.translatesAutoresizingMaskIntoConstraints = AuthConstants.translatesAutoresizingMaskIntoConstraints
         return imageView
     }()
     
     private let loginUIButton: UIButton = {
         let uiButton = UIButton()
         uiButton.tintColor = YPColors.white
-        uiButton.translatesAutoresizingMaskIntoConstraints = false
+        uiButton.translatesAutoresizingMaskIntoConstraints = AuthConstants.translatesAutoresizingMaskIntoConstraints
         
-        uiButton.setTitle("Войти", for: .normal)
-        uiButton.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .bold)
+        uiButton.setTitle(AuthConstants.loginUIButtonText, for: .normal)
+        uiButton.titleLabel?.font = UIFont.systemFont(ofSize: AuthConstants.loginUIButtonFontSize, weight: .bold)
         uiButton.setTitleColor(YPColors.black, for: .normal)
         
         uiButton.backgroundColor = YPColors.white
-        uiButton.layer.cornerRadius = 16
-        uiButton.layer.masksToBounds = true
+        uiButton.layer.cornerRadius = AuthConstants.loginUIButtonCornerRadius
+        uiButton.layer.masksToBounds = AuthConstants.loginUIButtonMasksToBounds
         
         return uiButton
     }()
@@ -72,18 +80,18 @@ final class AuthViewController: UIViewController {
             ),
             loginUIButton.leadingAnchor.constraint(
                 equalTo: view.leadingAnchor,
-                constant: 16
+                constant: AuthConstants.loginUIButtonLeadingAnchor
             ),
             loginUIButton.trailingAnchor.constraint(
                 equalTo: view.trailingAnchor,
-                constant: -16
+                constant: AuthConstants.loginUIButtonTrailingAnchor
             ),
             loginUIButton.heightAnchor.constraint(
-                equalToConstant: 48
+                equalToConstant: AuthConstants.loginUIButtonHeightAnchor
             ),
             loginUIButton.bottomAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.bottomAnchor,
-                constant: -106
+                constant: AuthConstants.loginUIButtonBottomAnchor
             ),
         ])
     }
