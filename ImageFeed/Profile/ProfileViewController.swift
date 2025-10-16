@@ -89,19 +89,18 @@ final class ProfileViewController: UIViewController {
         setupButtonTarget()
     }
     
-    @objc
-    private func didTapLogoutBtn(){
-        print("logout_btn tapped")
-    }
-    
     private func setupView(){
-        
         view.backgroundColor = YPColors.black
         view.addSubview(profileImageView)
         view.addSubview(fullNameUILabelView)
         view.addSubview(nicknameUILabel)
         view.addSubview(greetingsUILabel)
         view.addSubview(logoutUIButton)
+    }
+    
+    @objc
+    private func didTapLogoutBtn(){
+        print("logout_btn tapped")
     }
     
     private func setupConstraints(){
