@@ -101,4 +101,4 @@ iOSInjectionProject/
 # End of https://www.toptal.com/developers/gitignore/api/swift,xcode
 
 # Secret keys
-Constants.swift
+/Constants.swift
