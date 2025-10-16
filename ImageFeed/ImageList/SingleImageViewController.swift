@@ -93,7 +93,7 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
             scrollView.setZoomScale(scrollView.minimumZoomScale, animated: true)
         } else {
             // Увеличиваем в 2 раза относительно точки тапа
-            let zoomScale = min(scrollView.maximumZoomScale, 2.0)
+            let zoomScale = min(scrollView.maximumZoomScale, 1.1)
             let zoomRect = zoomRectForScale(
                 scale: zoomScale,
                 center: tapPoint

@@ -17,7 +17,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="RUa-sl-gv7">
-                                <rect key="frame" x="16" y="103" width="361" height="666"/>
+                                <rect key="frame" x="16" y="0.0" width="361" height="769"/>
                                 <color key="backgroundColor" name="YP Black"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ImageListCell" rowHeight="253" id="3Xy-dd-7c5" customClass="ImageListCell" customModule="ImageFeed" customModuleProvider="target">
@@ -82,7 +82,7 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black"/>
                         <constraints>
-                            <constraint firstItem="RUa-sl-gv7" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="topMargin" id="Rjl-Mx-B2D"/>
+                            <constraint firstItem="RUa-sl-gv7" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="Rjl-Mx-B2D"/>
                             <constraint firstItem="RUa-sl-gv7" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="oJa-Nl-zxF"/>
                             <constraint firstAttribute="trailingMargin" secondItem="RUa-sl-gv7" secondAttribute="trailing" id="svF-nV-t5R"/>
                             <constraint firstAttribute="bottomMargin" secondItem="RUa-sl-gv7" secondAttribute="bottom" id="yCr-u2-GEa"/>
@@ -136,7 +136,7 @@
                                 </connections>
                             </scrollView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WfS-6v-gK2" userLabel="Back Button">
-                                <rect key="frame" x="0.0" y="46" width="154" height="56"/>
+                                <rect key="frame" x="0.0" y="2" width="154" height="56"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" image="single_img_back_btn"/>
                                 <connections>
@@ -144,7 +144,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="V2J-mP-B5D" userLabel="Share Button ">
-                                <rect key="frame" x="159" y="771" width="75" height="64"/>
+                                <rect key="frame" x="159" y="737" width="75" height="64"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" image="single_image_sharing_button"/>
                                 <connections>
@@ -155,14 +155,14 @@
                         <viewLayoutGuide key="safeArea" id="c2i-yg-DkW"/>
                         <color key="backgroundColor" name="YP Black"/>
                         <constraints>
+                            <constraint firstAttribute="trailing" secondItem="NRH-bl-Oqf" secondAttribute="trailing" id="79p-L4-ul7"/>
                             <constraint firstItem="V2J-mP-B5D" firstAttribute="centerX" secondItem="c2i-yg-DkW" secondAttribute="centerX" id="An9-ak-cEm"/>
-                            <constraint firstAttribute="leading" secondItem="NRH-bl-Oqf" secondAttribute="leading" id="GJb-tj-jku"/>
-                            <constraint firstItem="NRH-bl-Oqf" firstAttribute="bottom" secondItem="GNs-bs-bjl" secondAttribute="bottom" constant="20" id="WFz-DL-K9E"/>
+                            <constraint firstItem="NRH-bl-Oqf" firstAttribute="top" secondItem="GNs-bs-bjl" secondAttribute="top" id="Y0i-1n-5Uc"/>
                             <constraint firstItem="WfS-6v-gK2" firstAttribute="leading" secondItem="c2i-yg-DkW" secondAttribute="leading" id="ZDm-aV-B20"/>
-                            <constraint firstAttribute="bottom" secondItem="V2J-mP-B5D" secondAttribute="bottom" constant="17" id="aak-iF-cm9"/>
-                            <constraint firstAttribute="top" secondItem="NRH-bl-Oqf" secondAttribute="top" constant="20" id="cPF-I7-R6P"/>
-                            <constraint firstItem="WfS-6v-gK2" firstAttribute="top" secondItem="c2i-yg-DkW" secondAttribute="top" constant="46" id="gnk-PX-UQp"/>
-                            <constraint firstItem="NRH-bl-Oqf" firstAttribute="trailing" secondItem="c2i-yg-DkW" secondAttribute="trailing" id="xKQ-XX-hjR"/>
+                            <constraint firstAttribute="bottom" secondItem="V2J-mP-B5D" secondAttribute="bottom" constant="51" id="aak-iF-cm9"/>
+                            <constraint firstItem="NRH-bl-Oqf" firstAttribute="leading" secondItem="GNs-bs-bjl" secondAttribute="leading" id="fjd-BB-VnN"/>
+                            <constraint firstItem="WfS-6v-gK2" firstAttribute="top" secondItem="c2i-yg-DkW" secondAttribute="top" constant="2" id="gnk-PX-UQp"/>
+                            <constraint firstAttribute="bottom" secondItem="NRH-bl-Oqf" secondAttribute="bottom" id="iee-WS-m4k"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="Jyf-be-Svy"/>
@@ -199,19 +199,18 @@
         <!--Navigation Controller-->
         <scene sceneID="hpT-e5-nMJ">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="Pv8-Hy-gxb" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="Pv8-Hy-gxb" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="" image="feed_active" selectedImage="feed_active" id="kja-a3-RKs">
                         <color key="badgeColor" name="YP White"/>
                     </tabBarItem>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="8Uf-Bd-w2v">
-                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="backgroundColor" name="YP Black"/>
                         <color key="tintColor" name="YP White"/>
                         <color key="barTintColor" name="YP White"/>
                         <navigationBarAppearance key="standardAppearance">
-                            <color key="backgroundColor" name="YP Black"/>
+                            <color key="backgroundColor" white="1" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </navigationBarAppearance>
                     </navigationBar>
                     <nil name="viewControllers"/>
