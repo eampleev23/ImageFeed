@@ -97,7 +97,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3207" y="-2"/>
+            <point key="canvasLocation" x="3427" y="-2"/>
         </scene>
         <!--Profile View Controller-->
         <scene sceneID="KJW-4g-vX2">
@@ -175,7 +175,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2XI-ye-qLr" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3842" y="-2"/>
+            <point key="canvasLocation" x="4213" y="-2"/>
         </scene>
         <!--Auth View Controller-->
         <scene sceneID="WPl-nh-lA5">

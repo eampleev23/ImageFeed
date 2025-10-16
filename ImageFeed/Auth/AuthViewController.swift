@@ -18,6 +18,7 @@ enum AuthConstants {
     static let loginUIButtonTrailingAnchor: CGFloat = -16
     static let loginUIButtonHeightAnchor: CGFloat = 48
     static let loginUIButtonBottomAnchor: CGFloat = -106
+    static let segueIDFromStoryBoard: String = "ShowWebView"
 }
 
 final class AuthViewController: UIViewController {
@@ -62,7 +63,7 @@ final class AuthViewController: UIViewController {
     
     @objc
     private func didTapLoginBtn(){
-        performSegue(withIdentifier: "ShowWebView", sender: self)
+        performSegue(withIdentifier: AuthConstants.segueIDFromStoryBoard, sender: self)
     }
     
     private func setupConstraints(){
