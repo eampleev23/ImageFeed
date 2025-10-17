@@ -42,6 +42,8 @@ class WebViewViewController: UIViewController, WKNavigationDelegate {
     private var progressTimer: Timer?
     private var targetProgress: Float = 0.0
     private var isLoadCompleted = false
+    private var fakeProgressTimer: Timer?
+    private var fakeProgress: Float = 0.0
     
     // Добавили наблюдателя
     override func viewWillAppear(_ animated: Bool) {
@@ -51,6 +53,9 @@ class WebViewViewController: UIViewController, WKNavigationDelegate {
             forKeyPath: #keyPath(WKWebView.estimatedProgress),
             options: .new,
             context: nil)
+        
+        // Запускаем "фейковый" прогресс сразу при появлении
+        startFakeProgress()
     }
     
     // Планируем удаление наблюдателя
@@ -63,6 +68,8 @@ class WebViewViewController: UIViewController, WKNavigationDelegate {
         )
         progressTimer?.invalidate()
         progressTimer = nil
+        fakeProgressTimer?.invalidate()
+        fakeProgressTimer = nil
     }
     
     // Добавляем обработчик обновлений
@@ -80,8 +87,37 @@ class WebViewViewController: UIViewController, WKNavigationDelegate {
         }
     }
     
+    private func startFakeProgress() {
+        fakeProgressTimer?.invalidate()
+        fakeProgress = 0.0
+        progressView.setProgress(0.0, animated: false) // Начинаем с 0%
+        
+        fakeProgressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            
+            // Плавно увеличиваем фейковый прогресс от 0% до 0.7 (70%)
+            if self.fakeProgress < 0.7 {
+                self.fakeProgress += 0.015 // Меньший шаг для более плавной анимации
+                let currentProgress = max(self.progressView.progress, self.fakeProgress)
+                self.progressView.setProgress(currentProgress, animated: true)
+                
+                // Можно добавить логику для замедления при приближении к 70%
+                if self.fakeProgress > 0.6 {
+                    // Замедляемся на последних 10%
+                    self.fakeProgress += 0.005
+                }
+            } else {
+                self.fakeProgressTimer?.invalidate()
+            }
+        }
+    }
+    
     private func updateProgressSmoothly(to target: Float) {
         targetProgress = target
+        
+        // Останавливаем фейковый прогресс когда начинается реальный
+        fakeProgressTimer?.invalidate()
+        fakeProgressTimer = nil
         
         // Если прогресс завершен
         if target >= 1.0 {
@@ -105,12 +141,9 @@ class WebViewViewController: UIViewController, WKNavigationDelegate {
             return
         }
         
-        // Показываем прогресс-бар если он скрыт
+        // Показываем прогресс-бар если он скрыт (на всякий случай)
         if progressView.alpha == 0.0 {
-            progressView.setProgress(0.0, animated: false)
-            UIView.animate(withDuration: 0.3) {
-                self.progressView.alpha = 1.0
-            }
+            progressView.alpha = 1.0
         }
         
         // Запускаем плавное обновление прогресса
@@ -158,7 +191,11 @@ class WebViewViewController: UIViewController, WKNavigationDelegate {
         setupNavigationBar()
         setupProgressView()
         setupWebView()
-        loadAuthView()
+        
+        // Начинаем загрузку с небольшой задержкой чтобы прогресс-бар успел показаться
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.loadAuthView()
+        }
     }
     
     private func setupUI() {
