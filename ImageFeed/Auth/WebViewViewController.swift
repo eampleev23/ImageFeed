@@ -4,7 +4,7 @@
 //
 //  Created by Евгений Амплеев on 16.10.2025.
 //
-import WebKit
+@preconcurrency import WebKit
 
 enum WebViewConstants {
     static let unsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
