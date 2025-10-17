@@ -36,6 +36,14 @@ final class ImageListCell: UITableViewCell {
         isLiked = false
     }
     
+    override func awakeFromNib() {
+        
+        super.awakeFromNib()
+        let selectionView = UIView()
+        selectionView.backgroundColor = UIColor.clear
+        self.selectedBackgroundView = selectionView
+    }
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         

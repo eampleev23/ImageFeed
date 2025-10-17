@@ -11,6 +11,8 @@ final class ImagesListViewController: UIViewController {
     
     @IBOutlet private var tableView: UITableView!
     
+    private let showSingleImageSegueIdentifier = "ShowSingleImage"
+    
     private let photosNames: [String] = Array(0..<20).map{ "\($0)" }
     private let defaultCellHeight: CGFloat = 200
     
@@ -28,6 +30,28 @@ final class ImagesListViewController: UIViewController {
         super.viewDidLoad()
         tableView.rowHeight = defaultCellHeight
         tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
+        tableView.showsVerticalScrollIndicator = false
+        tableView.showsHorizontalScrollIndicator = false
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier == showSingleImageSegueIdentifier {
+            
+            guard
+                let viewController = segue.destination as? SingleImageViewController,
+                let indexPath = sender as? IndexPath
+            else {
+                assertionFailure("Invalid segue destination")
+                return
+            }
+            let image = UIImage(named: photosNames[indexPath.row])
+            viewController.image = image
+            
+        } else {
+            
+            super.prepare(for: segue, sender: sender)
+        }
     }
     
     private func configCell(for cell: ImageListCell, with indexPath: IndexPath, isLiked: Bool ) {
@@ -56,7 +80,8 @@ final class ImagesListViewController: UIViewController {
 extension ImagesListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // TODO:
+        
+        performSegue(withIdentifier: showSingleImageSegueIdentifier, sender: indexPath)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat{
@@ -113,4 +138,5 @@ extension ImagesListViewController: UITableViewDataSource {
         configCell(for: imageListCell, with: indexPath, isLiked: isLiked)
         return imageListCell
     }
+    
 }
