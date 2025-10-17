@@ -32,7 +32,6 @@ class WebViewViewController: UIViewController, WKNavigationDelegate {
         setupWebView()
         setupUI()
         setupNavigationBar()
-        setupConstraints()
         loadAuthView()
     }
     
@@ -84,18 +83,8 @@ class WebViewViewController: UIViewController, WKNavigationDelegate {
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
     }
     
-    private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
-    }
-    
     @objc private func didTapBackButton() {
-//        navigationController?.popViewController(animated: true)
-        delegate?.webViewViewControllerDidCancel(self)
+        delegate?.webViewViewControllerDidCancel(self) // при таком подходе не работает кнопка 
     }
     
     private func setupWebView() {
