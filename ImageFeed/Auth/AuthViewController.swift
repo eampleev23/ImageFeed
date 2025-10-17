@@ -52,7 +52,19 @@ final class AuthViewController: UIViewController {
         setupView()
         setupConstraints()
         setupButtonTarget()
-//        configureBackButton()
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == AuthConstants.segueIDFromStoryBoard {
+            guard
+                let webViewViewController = segue.destination as? WebViewViewController
+            else {
+                fatalError("Failed to prepare for \(AuthConstants.segueIDFromStoryBoard)")
+            }
+            webViewViewController.delegate = self
+        } else {
+            super.prepare(for: segue, sender: sender)
+        }
     }
     
     private func setupView(){
@@ -102,11 +114,15 @@ final class AuthViewController: UIViewController {
         loginUIButton.addTarget(self, action: #selector(didTapLoginBtn), for: .touchUpInside)
     }
     
-//    private func configureBackButton() {
-//        navigationController?.navigationBar.backIndicatorImage = UIImage(named: "nav_back_button")
-//        navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(named: "nav_back_button")
-//        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-//        navigationItem.backBarButtonItem?.tintColor = YPColors.black
-//    }
+}
+// MARK: - WebViewViewControllerDelegate
+extension AuthViewController: WebViewViewControllerDelegate {
+    func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
+        // TODO: Обработать код авторизации (будет дополнено в следующих уроках)
+        print("Authorization code received: \(code)")
+    }
     
+    func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
+        dismiss(animated: true)
+    }
 }

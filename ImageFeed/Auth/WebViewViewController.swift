@@ -10,9 +10,15 @@ enum WebViewConstants {
     static let unsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
 }
 
+protocol WebViewViewControllerDelegate: AnyObject {
+    func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String)
+    func webViewViewControllerDidCancel(_ vc: WebViewViewController)
+}
+
 class WebViewViewController: UIViewController, WKNavigationDelegate {
     
     private let webView = WKWebView()
+    weak var delegate: WebViewViewControllerDelegate?
     
     // MARK: - Constants
     private enum NavConstants {
@@ -88,7 +94,8 @@ class WebViewViewController: UIViewController, WKNavigationDelegate {
     }
     
     @objc private func didTapBackButton() {
-        navigationController?.popViewController(animated: true)
+//        navigationController?.popViewController(animated: true)
+        delegate?.webViewViewControllerDidCancel(self)
     }
     
     private func setupWebView() {
@@ -104,31 +111,31 @@ class WebViewViewController: UIViewController, WKNavigationDelegate {
         ])
     }
     
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        print("Trying to load: \(navigationAction.request.url?.absoluteString ?? "unknown")")
-        
-        if let url = navigationAction.request.url {
-            print("URL scheme: \(url.scheme ?? "no scheme")")
-            print("URL host: \(url.host ?? "no host")")
+    private func code(from navigationAction: WKNavigationAction) -> String? {
+        if
+            let url = navigationAction.request.url,
+            let urlComponents = URLComponents(string: url.absoluteString),
+            urlComponents.path == "/oauth/authorize/native",
+            let items = urlComponents.queryItems,
+            let codeItem = items.first(where: { $0.name == "code" })
+        {
+            return codeItem.value
+        } else {
+            return nil
         }
-        
-        decisionHandler(.allow)
     }
     
-    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        print("WebView started loading")
-    }
-    
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        print("WebView finished loading")
-    }
-    
-    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        print("WebView provisional navigation failed: \(error.localizedDescription)")
-        print("Error details: \(error)")
-    }
-    
-    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        print("WebView navigation failed: \(error.localizedDescription)")
+    func webView(
+        _ webView: WKWebView,
+        decidePolicyFor navigationAction: WKNavigationAction,
+        decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+    ) {
+        if let code = code(from: navigationAction) {
+            //TODO: process code
+            delegate?.webViewViewController(self, didAuthenticateWithCode: code)
+            decisionHandler(.cancel)
+        } else {
+            decisionHandler(.allow)
+        }
     }
 }
