@@ -115,7 +115,6 @@ final class AuthViewController: UIViewController {
     private func setupButtonTarget() {
         loginUIButton.addTarget(self, action: #selector(didTapLoginBtn), for: .touchUpInside)
     }
-    
 }
 // MARK: - WebViewViewControllerDelegate
 extension AuthViewController: WebViewViewControllerDelegate {
