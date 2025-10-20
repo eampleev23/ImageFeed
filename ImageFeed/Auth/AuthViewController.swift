@@ -119,8 +119,32 @@ final class AuthViewController: UIViewController {
 // MARK: - WebViewViewControllerDelegate
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-        // TODO: Обработать код авторизации (будет дополнено в следующих уроках)
         print("Authorization code received: \(code)")
+        
+        oauthToService.fetchOAuthToken(code: code) { [weak self] result in
+            
+            switch result {
+            case .success(let token):
+                print("Successfully received token: \(token)")
+                // Токен получен и сохранен, можно переходить к следующему экрану
+                // self?.switchToTabBarController()
+                
+            case .failure(let error):
+                print("Failed to get token: \(error.localizedDescription)")
+                // Показываем alert с ошибкой
+                self?.showErrorAlert(error: error)
+            }
+        }
+    }
+    
+    private func showErrorAlert(error: Error) {
+        let alert = UIAlertController(
+            title: "Что-то пошло не так",
+            message: "Не удалось войти в систему",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
     
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
