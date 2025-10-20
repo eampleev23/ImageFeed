@@ -1,11 +1,6 @@
 // WebViewViewController.swift
 @preconcurrency import WebKit
 
-protocol WebViewViewControllerDelegate: AnyObject {
-    func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String)
-    func webViewViewControllerDidCancel(_ vc: WebViewViewController)
-}
-
 final class WebViewViewController: UIViewController, WKNavigationDelegate {
     
     // MARK: - Constants

@@ -7,21 +7,23 @@
 
 import UIKit
 
-enum AuthConstants {
-    static let translatesAutoresizingMaskIntoConstraints: Bool = false
-    static let logoImageViewImageName: String = "logo_of_unsplash"
-    static let loginUIButtonText: String = "Войти"
-    static let loginUIButtonFontSize: CGFloat = 17
-    static let loginUIButtonCornerRadius: CGFloat = 16
-    static let loginUIButtonMasksToBounds: Bool = true
-    static let loginUIButtonLeadingAnchor: CGFloat = 16
-    static let loginUIButtonTrailingAnchor: CGFloat = -16
-    static let loginUIButtonHeightAnchor: CGFloat = 48
-    static let loginUIButtonBottomAnchor: CGFloat = -106
-    static let segueIDFromStoryBoard: String = "ShowWebView"
-}
-
 final class AuthViewController: UIViewController {
+    
+    private enum AuthConstants {
+        static let translatesAutoresizingMaskIntoConstraints: Bool = false
+        static let logoImageViewImageName: String = "logo_of_unsplash"
+        static let loginUIButtonText: String = "Войти"
+        static let loginUIButtonFontSize: CGFloat = 17
+        static let loginUIButtonCornerRadius: CGFloat = 16
+        static let loginUIButtonMasksToBounds: Bool = true
+        static let loginUIButtonLeadingAnchor: CGFloat = 16
+        static let loginUIButtonTrailingAnchor: CGFloat = -16
+        static let loginUIButtonHeightAnchor: CGFloat = 48
+        static let loginUIButtonBottomAnchor: CGFloat = -106
+        static let segueIDFromStoryBoard: String = "ShowWebView"
+    }
+    
+    private let oauthToService = OAuth2Service.shared
     
     // MARK: - UI Elements
     private let logoImageView: UIImageView = {
