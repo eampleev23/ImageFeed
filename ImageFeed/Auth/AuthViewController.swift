@@ -24,6 +24,7 @@ final class AuthViewController: UIViewController {
     }
     
     private let oauthToService = OAuth2Service.shared
+    weak var delegate: AuthViewControllerDelegate?
     
     // MARK: - UI Elements
     private let logoImageView: UIImageView = {
@@ -51,6 +52,7 @@ final class AuthViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         setupView()
         setupConstraints()
         setupButtonTarget()
@@ -119,15 +121,15 @@ final class AuthViewController: UIViewController {
 // MARK: - WebViewViewControllerDelegate
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-        print("Authorization code received: \(code)")
         
+        print("Authorization code received: \(code)")
         oauthToService.fetchOAuthToken(code: code) { [weak self] result in
             
             switch result {
             case .success(let token):
                 print("Successfully received token: \(token)")
                 // Токен получен и сохранен, можно переходить к следующему экрану
-                // self?.switchToTabBarController()
+                self?.delegate?.didAuthenticate(self ?? AuthViewController())
                 
             case .failure(let error):
                 print("Failed to get token: \(error.localizedDescription)")
@@ -150,4 +152,8 @@ extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
         navigationController?.popViewController(animated: true)
     }
+}
+
+protocol AuthViewControllerDelegate: AnyObject {
+    func didAuthenticate(_ vc: AuthViewController)
 }

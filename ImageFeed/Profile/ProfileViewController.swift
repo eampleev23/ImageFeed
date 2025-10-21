@@ -15,7 +15,7 @@ enum ProfileLayotConstants {
     static let globalFontSizeUILabelStandart: CGFloat = 13
     
     static let profileImageViewImageName: String = "avatar"
-    static let profileImageViewTopAnchor: CGFloat = 32
+    static let profileImageViewTopAnchor: CGFloat = 0
     static let profileImageViewHeightAndWidth: CGFloat = 70
     
     static let fullNameUILabelText: String = "Екатерина Новикова"
@@ -27,7 +27,7 @@ enum ProfileLayotConstants {
     
     static let logoutUIButtonImageName: String = "logout_btn"
     static let logoutUIButtonRightAnchor: CGFloat = -16
-    static let logoutUIButtonTopAnchor: CGFloat = 45
+    static let logoutUIButtonTopAnchor: CGFloat = 13
 }
 
 final class ProfileViewController: UIViewController {
@@ -64,7 +64,7 @@ final class ProfileViewController: UIViewController {
     
     private let greetingsUILabel: UILabel = {
         let labelView = UILabel()
-        labelView.text = ProfileLayotConstants.nicknameUILabelText
+        labelView.text = ProfileLayotConstants.greetingsUILabelText
         labelView.translatesAutoresizingMaskIntoConstraints = false
         labelView.font = UIFont.systemFont(ofSize: ProfileLayotConstants.globalFontSizeUILabelStandart, weight: .regular)
         labelView.textColor = YPColors.white
@@ -100,7 +100,26 @@ final class ProfileViewController: UIViewController {
     
     @objc
     private func didTapLogoutBtn(){
-        print("logout_btn tapped")
+        print("didTapLogoutBtn")
+        UserDefaults.standard.removeObject(forKey: AppConstants.barerTokenKey)
+        switchToSplashViewController()
+    }
+    
+    private func switchToSplashViewController(){
+        
+        // Получаем активную window scene
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else {
+            assertionFailure("Invalid window configuration")
+            return
+        }
+        
+        // Создаем экземпляр нужного контроллера из Storyboard
+        let splashViewController = UIStoryboard(name: "Main", bundle: .main)
+            .instantiateViewController(withIdentifier: "SplashViewController")
+        
+        // Установим в `rootViewController` полученный контроллер
+        window.rootViewController = splashViewController
     }
     
     private func setupConstraints(){
@@ -133,6 +152,14 @@ final class ProfileViewController: UIViewController {
             ),
             nicknameUILabel.topAnchor.constraint(
                 equalTo: fullNameUILabelView.bottomAnchor,
+                constant: ProfileLayotConstants.globalTopAnchor
+            ),
+            greetingsUILabel.leadingAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.leadingAnchor,
+                constant: ProfileLayotConstants.globalLeadingAndRightAnchor
+            ),
+            greetingsUILabel.topAnchor.constraint(
+                equalTo: nicknameUILabel.bottomAnchor,
                 constant: ProfileLayotConstants.globalTopAnchor
             ),
             logoutUIButton.rightAnchor.constraint(
