@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A2EB0EDF2EA90A7A00C1C674 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = A2EB0EDE2EA90A7A00C1C674 /* Lottie */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		A257ABE12E97A1DF00FE130B /* ImageFeed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageFeed.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A2EB0EDF2EA90A7A00C1C674 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 			);
 			name = ImageFeed;
 			packageProductDependencies = (
+				A2EB0EDE2EA90A7A00C1C674 /* Lottie */,
 			);
 			productName = ImageFeed;
 			productReference = A257ABE12E97A1DF00FE130B /* ImageFeed.app */;
@@ -108,6 +114,7 @@
 			mainGroup = A257ABD82E97A1DF00FE130B;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				A2EB0EDD2EA90A7A00C1C674 /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A257ABE22E97A1DF00FE130B /* Products */;
@@ -347,6 +354,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A2EB0EDD2EA90A7A00C1C674 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = exactVersion;
+				version = 4.4.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A2EB0EDE2EA90A7A00C1C674 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A2EB0EDD2EA90A7A00C1C674 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A257ABD92E97A1DF00FE130B /* Project object */;
 }

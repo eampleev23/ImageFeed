@@ -13,6 +13,7 @@ final class OAuth2Service {
         case codeError
         case invalidRequest
         case parsingError
+        case duplicateRequest
     }
     
     static let shared = OAuth2Service()
@@ -50,21 +51,13 @@ final class OAuth2Service {
         
         assert(Thread.isMainThread)
         
-        if activeTokenRequestIfIs != nil {
-            
-            if activeAuthCodeIfIs != code {
-                activeTokenRequestIfIs?.cancel()
-            } else {
-                completion(.failure(AuthServiceErrors.invalidRequest))
-                return
-            }
-        } else {
-            if activeAuthCodeIfIs == code {
-                completion(.failure(AuthServiceErrors.invalidRequest))
-                return
-            }
+        guard activeAuthCodeIfIs != code else {
+            completion(.failure(AuthServiceErrors.duplicateRequest))
+            return
         }
+        activeTokenRequestIfIs?.cancel()
         activeAuthCodeIfIs = code
+        
         guard let newTokenRequest = makeOAuthTokenRequestURL(code: code) else {
             DispatchQueue.main.async {
                 completion(.failure(AuthServiceErrors.invalidRequest))

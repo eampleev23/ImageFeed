@@ -32,6 +32,7 @@ final class ImagesListViewController: UIViewController {
         tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
         tableView.showsVerticalScrollIndicator = false
         tableView.showsHorizontalScrollIndicator = false
+        tableView.backgroundColor = .ypBlack
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
