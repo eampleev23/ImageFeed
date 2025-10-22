@@ -9,19 +9,23 @@ import Foundation
 
 final class OAuth2Service {
     
-    private enum NetworkError: Error {
+    private enum AuthServiceErrors: Error {
         case codeError
         case invalidRequest
         case parsingError
     }
     
     static let shared = OAuth2Service()
-    private let tokenStorage = OAuth2TokenStorage.shared
+    
+    private var activeTokenRequestIfIs: URLSessionTask?
+    private var activeAuthCodeIfIs: String?
+    
     private init() {}
     
-    private func makeOAuthTokenRequest(code: String) -> URLRequest? {
+    private func makeOAuthTokenRequestURL(code: String) -> URLRequest? {
         
         guard var uRLComponents = URLComponents(string: "https://unsplash.com/oauth/token") else {
+            assertionFailure("Failed to create URL")
             return nil
         }
         
@@ -44,14 +48,32 @@ final class OAuth2Service {
     
     func fetchOAuthToken(code: String, completion: @escaping (Result<String, Error>) -> Void) {
         
-        guard let uRLRequest = makeOAuthTokenRequest(code: code) else {
+        assert(Thread.isMainThread)
+        
+        if activeTokenRequestIfIs != nil {
+            
+            if activeAuthCodeIfIs != code {
+                activeTokenRequestIfIs?.cancel()
+            } else {
+                completion(.failure(AuthServiceErrors.invalidRequest))
+                return
+            }
+        } else {
+            if activeAuthCodeIfIs == code {
+                completion(.failure(AuthServiceErrors.invalidRequest))
+                return
+            }
+        }
+        activeAuthCodeIfIs = code
+        guard let newTokenRequest = makeOAuthTokenRequestURL(code: code) else {
             DispatchQueue.main.async {
-                completion(.failure(NetworkError.invalidRequest))
+                completion(.failure(AuthServiceErrors.invalidRequest))
             }
             return
         }
         
-        let task = URLSession.shared.dataTask(with: uRLRequest) { data, response, error in
+        let tokenRequestToDo = URLSession.shared.dataTask(with: newTokenRequest) { data, response, error in
+            
             if let error {
                 print("[OAuth2Service] Network error: \(error.localizedDescription)")
                 DispatchQueue.main.async {
@@ -60,11 +82,10 @@ final class OAuth2Service {
                 return
             }
             
-            // Проверяем HTTP статус-код
             guard let httpResponse = response as? HTTPURLResponse else {
                 print("[OAuth2Service] Invalid response type")
                 DispatchQueue.main.async {
-                    completion(.failure(NetworkError.codeError))
+                    completion(.failure(AuthServiceErrors.codeError))
                 }
                 return
             }
@@ -72,30 +93,29 @@ final class OAuth2Service {
             guard (200...299).contains(httpResponse.statusCode) else {
                 print("[OAuth2Service] Server returned error status code: \(httpResponse.statusCode)")
                 DispatchQueue.main.async {
-                    completion(.failure(NetworkError.codeError))
+                    completion(.failure(AuthServiceErrors.codeError))
                 }
                 return
             }
             
-            // Проверяем наличие данных
             guard let data = data else {
                 print("[OAuth2Service] No data received")
                 DispatchQueue.main.async {
-                    completion(.failure(NetworkError.parsingError))
+                    completion(.failure(AuthServiceErrors.parsingError))
                 }
                 return
             }
             
-            // Декодируем JSON и извлекаем токен
             do {
                 let tokenResponse = try JSONDecoder().decode(OAuthTokenResponseBody.self, from: data)
                 let token = tokenResponse.access_token
                 
-                // Сохраняем токен
                 OAuth2TokenStorage.shared.token = token
                 
                 DispatchQueue.main.async {
                     completion(.success(token))
+                    self.activeTokenRequestIfIs = nil
+                    self.activeAuthCodeIfIs = nil
                 }
                 
             } catch {
@@ -104,8 +124,9 @@ final class OAuth2Service {
                     completion(.failure(error))
                 }
             }
-            
         }
-        task.resume()
+        
+        self.activeTokenRequestIfIs = tokenRequestToDo
+        tokenRequestToDo.resume()
     }
 }

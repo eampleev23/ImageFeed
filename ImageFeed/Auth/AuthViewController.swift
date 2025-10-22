@@ -23,7 +23,7 @@ final class AuthViewController: UIViewController {
         static let segueIDFromStoryBoard: String = "ShowWebView"
     }
     
-    private let oauthToService = OAuth2Service.shared
+    private let oauth2Service = OAuth2Service.shared
     weak var delegate: AuthViewControllerDelegate?
     
     // MARK: - UI Elements
@@ -120,10 +120,12 @@ final class AuthViewController: UIViewController {
 }
 // MARK: - WebViewViewControllerDelegate
 extension AuthViewController: WebViewViewControllerDelegate {
+    
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         
         print("Authorization code received: \(code)")
-        oauthToService.fetchOAuthToken(code: code) { [weak self] result in
+        
+        oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
             
             switch result {
             case .success(let token):
