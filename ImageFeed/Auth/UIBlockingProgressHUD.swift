@@ -18,7 +18,8 @@ final class UIBlockingProgressHUD {
         
         // Создаем overlay
         let overlay = UIView(frame: window.bounds)
-        overlay.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+//        overlay.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        overlay.backgroundColor = .ypBlack
         
         // Создаем анимацию Lottie
         let animationView = LottieAnimationView(name: "preloader")
