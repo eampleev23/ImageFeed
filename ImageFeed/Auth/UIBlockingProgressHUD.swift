@@ -18,11 +18,10 @@ final class UIBlockingProgressHUD {
         
         // Создаем overlay
         let overlay = UIView(frame: window.bounds)
-//        overlay.backgroundColor = UIColor.black.withAlphaComponent(0.4)
         overlay.backgroundColor = .ypBlack
         
         // Создаем анимацию Lottie
-        let animationView = LottieAnimationView(name: "preloader")
+        let animationView = LottieAnimationView(name: "loading_dots")
         animationView.frame = CGRect(x: 0, y: 0, width: 240, height: 240)
         animationView.center = overlay.center
         animationView.loopMode = .loop
