@@ -31,8 +31,13 @@ struct ProfileResult: Codable {
 }
 
 final class ProfileService {
+    
+    static let shared = ProfileService()
+    private init(){}
+    
     private var task: URLSessionTask?
     private let urlSession = URLSession.shared
+    private(set) var profile: Profile?
     
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
         // Если уже запущен запрос, то отменяем
@@ -74,6 +79,7 @@ final class ProfileService {
                     loginName: "@\(profileResult.username)",
                     bio: profileResult.bio ?? ""
                 )
+                self?.profile = profile
                 print("completion(.success(profile))")
                 DispatchQueue.main.async{
                     completion(.success(profile))}

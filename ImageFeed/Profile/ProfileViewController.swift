@@ -80,19 +80,22 @@ final class ProfileViewController: UIViewController {
         return uiButton
     }()
     
-    private let profileService = ProfileService()
+    private let profileService = ProfileService.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        profileService.fetchProfile(
-            OAuth2TokenStorage.shared.token ?? "") { result in
-                switch result {
-                case .success(let profile):
-                    self.updateProfileDetails(with: profile)
-                case .failure(let error):
-                    print("\(error)")
-                }
-            }
+        if let profile = profileService.profile {
+            updateProfileDetails(with: profile)
+        }
+        //        profileService.fetchProfile(
+        //            OAuth2TokenStorage.shared.token ?? "") { result in
+        //                switch result {
+        //                case .success(let profile):
+        //                    self.updateProfileDetails(with: profile)
+        //                case .failure(let error):
+        //                    print("\(error)")
+        //                }
+        //            }
         
         setupView()
         setupConstraints()
