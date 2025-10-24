@@ -23,7 +23,7 @@ enum ProfileLayotConstants {
     
     static let nicknameUILabelText: String = "@ekaterina_nov"
     
-    static let greetingsUILabelText: String = "Hello, world!"
+    static let bioUILabelText: String = "Hello, world!"
     
     static let logoutUIButtonImageName: String = "logout_btn"
     static let logoutUIButtonRightAnchor: CGFloat = -16
@@ -52,7 +52,7 @@ final class ProfileViewController: UIViewController {
         return labelView
     }()
     
-    private let nicknameUILabel: UILabel = {
+    private let nicknameUILabelView: UILabel = {
         let labelView = UILabel()
         labelView.text = ProfileLayotConstants.nicknameUILabelText
         labelView.translatesAutoresizingMaskIntoConstraints = false
@@ -62,9 +62,9 @@ final class ProfileViewController: UIViewController {
         return labelView
     }()
     
-    private let greetingsUILabel: UILabel = {
+    private let bioUILabelView: UILabel = {
         let labelView = UILabel()
-        labelView.text = ProfileLayotConstants.greetingsUILabelText
+        labelView.text = ProfileLayotConstants.bioUILabelText
         labelView.translatesAutoresizingMaskIntoConstraints = false
         labelView.font = UIFont.systemFont(ofSize: ProfileLayotConstants.globalFontSizeUILabelStandart, weight: .regular)
         labelView.textColor = YPColors.white
@@ -80,21 +80,47 @@ final class ProfileViewController: UIViewController {
         return uiButton
     }()
     
-    
+    private let profileService = ProfileService()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        profileService.fetchProfile(
+            OAuth2TokenStorage.shared.token ?? "") { result in
+                switch result {
+                case .success(let profile):
+                    self.updateProfileDetails(with: profile)
+                case .failure(let error):
+                    print("\(error)")
+                }
+            }
+        
         setupView()
         setupConstraints()
         setupButtonTarget()
+    }
+    
+    private func updateProfileDetails(with profile: Profile) {
+        
+        fullNameUILabelView.text = profile.name.isEmpty
+        ? "Имя не указано"
+        : profile.name
+        
+        nicknameUILabelView.text = profile.loginName.isEmpty
+        ? "Nickname не указан"
+        : profile.loginName
+        
+        bioUILabelView.text = profile.bio.isEmpty
+        ? "Биография не заполнена"
+        : profile.bio
+        
     }
     
     private func setupView(){
         view.backgroundColor = YPColors.black
         view.addSubview(profileImageView)
         view.addSubview(fullNameUILabelView)
-        view.addSubview(nicknameUILabel)
-        view.addSubview(greetingsUILabel)
+        view.addSubview(nicknameUILabelView)
+        view.addSubview(bioUILabelView)
         view.addSubview(logoutUIButton)
     }
     
@@ -146,20 +172,20 @@ final class ProfileViewController: UIViewController {
                 equalTo: profileImageView.bottomAnchor,
                 constant: ProfileLayotConstants.globalTopAnchor
             ),
-            nicknameUILabel.leadingAnchor.constraint(
+            nicknameUILabelView.leadingAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.leadingAnchor,
                 constant: ProfileLayotConstants.globalLeadingAndRightAnchor
             ),
-            nicknameUILabel.topAnchor.constraint(
+            nicknameUILabelView.topAnchor.constraint(
                 equalTo: fullNameUILabelView.bottomAnchor,
                 constant: ProfileLayotConstants.globalTopAnchor
             ),
-            greetingsUILabel.leadingAnchor.constraint(
+            bioUILabelView.leadingAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.leadingAnchor,
                 constant: ProfileLayotConstants.globalLeadingAndRightAnchor
             ),
-            greetingsUILabel.topAnchor.constraint(
-                equalTo: nicknameUILabel.bottomAnchor,
+            bioUILabelView.topAnchor.constraint(
+                equalTo: nicknameUILabelView.bottomAnchor,
                 constant: ProfileLayotConstants.globalTopAnchor
             ),
             logoutUIButton.rightAnchor.constraint(

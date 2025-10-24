@@ -58,14 +58,14 @@ final class OAuth2Service {
         activeTokenRequestIfIs?.cancel()
         activeAuthCodeIfIs = code
         
-        guard let newTokenRequest = makeOAuthTokenRequestURL(code: code) else {
+        guard let newTokenRequestURL = makeOAuthTokenRequestURL(code: code) else {
             DispatchQueue.main.async {
                 completion(.failure(AuthServiceErrors.invalidRequest))
             }
             return
         }
         
-        let tokenRequestToDo = URLSession.shared.dataTask(with: newTokenRequest) { data, response, error in
+        let tokenRequestToDo = URLSession.shared.dataTask(with: newTokenRequestURL) { data, response, error in
             
             if let error {
                 print("[OAuth2Service] Network error: \(error.localizedDescription)")
