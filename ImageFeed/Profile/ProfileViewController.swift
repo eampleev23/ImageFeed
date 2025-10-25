@@ -82,24 +82,34 @@ final class ProfileViewController: UIViewController {
     
     private let profileService = ProfileService.shared
     
+    private var profileImageServiceObserver: NSObjectProtocol?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        profileImageServiceObserver = NotificationCenter.default
+            .addObserver(
+                forName: ProfileImageService.didChangeNotification,
+                object: nil,
+                queue: .main
+            ){[weak self] _ in
+                guard let self else { return }
+                self.updateAvatar()
+            }
+        updateAvatar()
         if let profile = profileService.profile {
             updateProfileDetails(with: profile)
         }
-        //        profileService.fetchProfile(
-        //            OAuth2TokenStorage.shared.token ?? "") { result in
-        //                switch result {
-        //                case .success(let profile):
-        //                    self.updateProfileDetails(with: profile)
-        //                case .failure(let error):
-        //                    print("\(error)")
-        //                }
-        //            }
-        
         setupView()
         setupConstraints()
         setupButtonTarget()
+    }
+    private func updateAvatar(){
+        guard
+            let profileImageURL = ProfileImageService.shared.avtarURL,
+            let url = URL(string: profileImageURL)
+        else { return }
+        //TODO: sprint 11 - обновить аватар, используя Kingfisher
     }
     
     private func updateProfileDetails(with profile: Profile) {

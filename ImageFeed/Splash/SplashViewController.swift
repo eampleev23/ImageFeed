@@ -56,11 +56,14 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
     private func fetchProfile(token: String) {
         UIBlockingProgressHUD.show()
         profileService.fetchProfile(
-            OAuth2TokenStorage.shared.token ?? "") { [weak self] result in
+            OAuth2TokenStorage.shared.token ?? "") { [weak self] (result: Result<Profile, Error>) in
                 UIBlockingProgressHUD.dismiss()
                 guard let self = self else { return }
                 switch result {
-                case .success:
+                case let .success(profile):
+                    ProfileImageService.shared.fetchProfileImageURL(
+                        username: profile.userName
+                    ){ _ in }
                     self.switchToTabBarController()
                 case .failure:
                     //TODO: sprint 11
