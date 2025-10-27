@@ -31,7 +31,7 @@ final class ProfileImageService {
     private init(){}
     
     private let session = URLSession.shared
-    private(set) var avtarURL: String?
+    private(set) var avatarURL: String?
     
     func fetchProfileImageURL(
         username: String,
@@ -56,7 +56,7 @@ final class ProfileImageService {
             task = session.objectTask(for: request) { [weak self] (result: Result<UserResult, Error>) in
                 switch result {
                 case .success(let userResult):
-                    self?.avtarURL = userResult.profileImage.small
+                    self?.avatarURL = userResult.profileImage.small
                     
                     DispatchQueue.main.async {
                         completion(.success(userResult.profileImage.small))
@@ -114,4 +114,10 @@ final class ProfileImageService {
         }
     }
     
+}
+
+extension ProfileImageService {
+    func cleanAvatarURL() {
+        avatarURL = nil
+    }
 }

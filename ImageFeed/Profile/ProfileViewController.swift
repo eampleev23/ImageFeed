@@ -82,7 +82,6 @@ final class ProfileViewController: UIViewController {
     }()
     
     private let profileService = ProfileService.shared
-    
     private var profileImageServiceObserver: NSObjectProtocol?
     
     override func viewDidLoad() {
@@ -107,7 +106,7 @@ final class ProfileViewController: UIViewController {
     }
     private func updateAvatar(){
         guard
-            let profileImageURL = ProfileImageService.shared.avtarURL,
+            let profileImageURL = ProfileImageService.shared.avatarURL,
             let url = URL(string: profileImageURL)
         else { return }
         profileImageView.kf.setImage(with: url)
@@ -140,8 +139,40 @@ final class ProfileViewController: UIViewController {
     
     @objc
     private func didTapLogoutBtn(){
-        print("didTapLogoutBtn")
-        UserDefaults.standard.removeObject(forKey: AppConstants.barerTokenKey)
+        showLogoutConfirmationAlert()
+    }
+    
+    private func showLogoutConfirmationAlert() {
+        let alert = UIAlertController(
+            title: "Подтверждение выхода",
+            message: "Уверены, что хотите выйти?",
+            preferredStyle: .alert
+        )
+        
+        let confirmAction = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
+            self?.performLogout()
+        }
+        
+        let cancelAction = UIAlertAction(title: "Нет", style: .cancel)
+        
+        alert.addAction(confirmAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true)
+    }
+    
+    private func performLogout() {
+        OAuth2TokenStorage.shared.removeToken()
+        
+        // 2. Очищаем данные профиля
+        ProfileService.shared.cleanProfile()
+        ProfileImageService.shared.cleanAvatarURL()
+        
+        // 3. Очищаем кеш изображений Kingfisher
+        KingfisherManager.shared.cache.clearMemoryCache()
+        KingfisherManager.shared.cache.clearDiskCache()
+        
+        // 4. Переключаемся на SplashViewController
         switchToSplashViewController()
     }
     
