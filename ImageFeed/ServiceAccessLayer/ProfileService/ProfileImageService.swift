@@ -43,40 +43,19 @@ final class ProfileImageService {
                 return
             }
             
-            // Создаем урл для запроса
-            guard let requestURL = makeProfileRequest(
-                token: token,
-                username: username
-            ) else {
-                DispatchQueue.main.async{
-                    completion(.failure(URLError(.badURL)))}
+            guard let request = makeProfileRequest(token: token, username: username) else {
+                DispatchQueue.main.async {
+                    completion(.failure(URLError(.badURL)))
+                }
                 return
             }
-            let task = session.dataTask(with: requestURL) { [weak self] data, response, error in
-                // Проверяем, есть ли ошибка
-                if let error = error {
-                    DispatchQueue.main.async{
-                        completion(.failure(error))}
-                    self?.task = nil
-                    return
-                }
-                
-                // Проверяем, что данные получены
-                guard let data = data else {
-                    DispatchQueue.main.async{
-                        completion(.failure(URLError(.badServerResponse)))}
-                    self?.task = nil
-                    return
-                }
-                
-                self?.printRawJSON(data: data)
-                
-                do {
-                    let userResult = try JSONDecoder().decode(UserResult.self, from: data)
-                    
+            
+            task = session.objectTask(for: request) { [weak self] (result: Result<UserResult, Error>) in
+                switch result {
+                case .success(let userResult):
                     self?.avtarURL = userResult.profileImage.small
-                    print("completion(.success(userResult))")
-                    DispatchQueue.main.async{
+                    
+                    DispatchQueue.main.async {
                         completion(.success(userResult.profileImage.small))
                         NotificationCenter.default
                             .post(
@@ -84,13 +63,16 @@ final class ProfileImageService {
                                 object: self,
                                 userInfo: ["URL": userResult.profileImage.small])
                     }
-                } catch {
-                    print("completion(.failure(error))")
-                    DispatchQueue.main.async{
-                        completion(.failure(error))}
+                    
+                case .failure(let error):
+                    DispatchQueue.main.async {
+                        completion(.failure(error))
+                    }
                 }
                 self?.task = nil
             }
+            
+            task?.resume()
         }
     
     private func makeProfileRequest(token: String, username: String) -> URLRequest? {

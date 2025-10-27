@@ -40,39 +40,19 @@ final class ProfileService {
     private(set) var profile: Profile?
     
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
-        // Если уже запущен запрос, то отменяем
         task?.cancel()
         
-        // Создаем урл для запроса
-        guard let requestURL = makeProfileRequest(token: token) else {
-            DispatchQueue.main.async{
-                completion(.failure(URLError(.badURL)))}
+        guard let request = makeProfileRequest(token: token) else {
+            DispatchQueue.main.async {
+                completion(.failure(URLError(.badURL)))
+            }
             return
         }
         
-        // Создаем запрос
-        let task = urlSession.dataTask(with: requestURL) { [weak self] data, response, error in
-            // Проверяем, есть ли ошибка
-            if let error = error {
-                DispatchQueue.main.async{
-                    completion(.failure(error))}
-                self?.task = nil
-                return
-            }
-            
-            // Проверяем, что данные получены
-            guard let data = data else {
-                DispatchQueue.main.async{
-                    completion(.failure(URLError(.badServerResponse)))}
-                self?.task = nil
-                return
-            }
-            
-            self?.printRawJSON(data: data)
-            
-            do {
-                let profileResult = try JSONDecoder().decode(ProfileResult.self, from: data)
-                
+        // Используем новый универсальный метод
+        task = urlSession.objectTask(for: request) { [weak self] (result: Result<ProfileResult, Error>) in
+            switch result {
+            case .success(let profileResult):
                 let profile = Profile(
                     userName: profileResult.username,
                     name: "\(profileResult.firstName) \(profileResult.lastName)",
@@ -80,19 +60,20 @@ final class ProfileService {
                     bio: profileResult.bio ?? ""
                 )
                 self?.profile = profile
-                print("completion(.success(profile))")
-                DispatchQueue.main.async{
-                    completion(.success(profile))}
-            } catch {
-                print("completion(.failure(error))")
-                DispatchQueue.main.async{
-                    completion(.failure(error))}
+                
+                DispatchQueue.main.async {
+                    completion(.success(profile))
+                }
+                
+            case .failure(let error):
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
             }
             self?.task = nil
         }
         
-        self.task = task
-        task.resume()
+        task?.resume()
     }
     
     private func makeProfileRequest(token: String) -> URLRequest? {
