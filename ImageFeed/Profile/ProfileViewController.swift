@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 enum ProfileLayotConstants {
     
@@ -109,7 +110,7 @@ final class ProfileViewController: UIViewController {
             let profileImageURL = ProfileImageService.shared.avtarURL,
             let url = URL(string: profileImageURL)
         else { return }
-        //TODO: sprint 11 - обновить аватар, используя Kingfisher
+        profileImageView.kf.setImage(with: url)
     }
     
     private func updateProfileDetails(with profile: Profile) {

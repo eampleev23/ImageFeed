@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A2E707082EAF9DE80088B7B0 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = A2E707072EAF9DE80088B7B0 /* Kingfisher */; };
 		A2EB0EDF2EA90A7A00C1C674 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = A2EB0EDE2EA90A7A00C1C674 /* Lottie */; };
 /* End PBXBuildFile section */
 
@@ -40,6 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A2E707082EAF9DE80088B7B0 /* Kingfisher in Frameworks */,
 				A2EB0EDF2EA90A7A00C1C674 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -84,6 +86,7 @@
 			name = ImageFeed;
 			packageProductDependencies = (
 				A2EB0EDE2EA90A7A00C1C674 /* Lottie */,
+				A2E707072EAF9DE80088B7B0 /* Kingfisher */,
 			);
 			productName = ImageFeed;
 			productReference = A257ABE12E97A1DF00FE130B /* ImageFeed.app */;
@@ -115,6 +118,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				A2EB0EDD2EA90A7A00C1C674 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				A2E707062EAF9DE80088B7B0 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A257ABE22E97A1DF00FE130B /* Products */;
@@ -356,6 +360,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		A2E707062EAF9DE80088B7B0 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.6.0;
+			};
+		};
 		A2EB0EDD2EA90A7A00C1C674 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/airbnb/lottie-ios";
@@ -367,6 +379,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		A2E707072EAF9DE80088B7B0 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A2E707062EAF9DE80088B7B0 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
 		A2EB0EDE2EA90A7A00C1C674 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A2EB0EDD2EA90A7A00C1C674 /* XCRemoteSwiftPackageReference "lottie-ios" */;
