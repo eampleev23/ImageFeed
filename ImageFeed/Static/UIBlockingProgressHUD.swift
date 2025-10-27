@@ -14,11 +14,14 @@ final class UIBlockingProgressHUD {
     private static var animationView: LottieAnimationView?
     
     static func show() {
+        
+        dismiss()
+        
         guard let window = getKeyWindow() else { return }
         
         // Создаем overlay
         let overlay = UIView(frame: window.bounds)
-        overlay.backgroundColor = .ypBlack
+        overlay.backgroundColor = .ypBlack.withAlphaComponent(0.8)
         
         // Создаем анимацию Lottie
         let animationView = LottieAnimationView(name: "loading_dots")
