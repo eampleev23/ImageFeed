@@ -132,13 +132,16 @@ extension AuthViewController: WebViewViewControllerDelegate {
             switch result {
             case .success(let token):
                 print("Successfully received token: \(token)")
-                // Токен получен и сохранен, можно переходить к следующему экрану
-                self?.delegate?.didAuthenticate(self ?? AuthViewController())
+                DispatchQueue.main.async {
+                    self?.delegate?.didAuthenticate(self ?? AuthViewController())
+                }
                 
             case .failure(let error):
                 print("Failed to get token: \(error.localizedDescription)")
                 // Показываем alert с ошибкой
-                self?.showErrorAlert(error: error)
+                DispatchQueue.main.async {
+                    self?.showErrorAlert(error: error)
+                }
             }
         }
     }
