@@ -39,11 +39,14 @@ final class ProfileImageService {
             task?.cancel()
             
             guard let token = OAuth2TokenStorage.shared.token else {
+                let error = NSError(domain: "ProfileImageService", code: 401, userInfo: [NSLocalizedDescriptionKey: "Authorization token missing"])
+                print("[ProfileImageService]: authError - отсутствует токен авторизации")
                 completion(.failure(NSError(domain: "ProfileImageService", code: 401, userInfo: [NSLocalizedDescriptionKey: "Authorization token missing"])))
                 return
             }
             
             guard let request = makeProfileRequest(token: token, username: username) else {
+                print("[ProfileImageService]: invalidRequest - не удалось создать URL запроса для пользователя: \(username)")
                 DispatchQueue.main.async {
                     completion(.failure(URLError(.badURL)))
                 }
@@ -65,6 +68,7 @@ final class ProfileImageService {
                     }
                     
                 case .failure(let error):
+                    print("[ProfileImageService]: imageRequestError - \(error.localizedDescription), пользователь: \(username)")
                     DispatchQueue.main.async {
                         completion(.failure(error))
                     }

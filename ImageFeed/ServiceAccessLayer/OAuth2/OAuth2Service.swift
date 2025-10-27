@@ -52,6 +52,7 @@ final class OAuth2Service {
         assert(Thread.isMainThread)
         
         guard activeAuthCodeIfIs != code else {
+            print("[OAuth2Service]: duplicateRequest - попытка повторного запроса с тем же кодом")
             completion(.failure(AuthServiceErrors.duplicateRequest))
             return
         }
@@ -59,6 +60,7 @@ final class OAuth2Service {
         activeAuthCodeIfIs = code
         
         guard let newTokenRequestURL = makeOAuthTokenRequestURL(code: code) else {
+            print("[OAuth2Service]: invalidRequest - не удалось создать URL запроса")
             DispatchQueue.main.async {
                 completion(.failure(AuthServiceErrors.invalidRequest))
             }
@@ -71,7 +73,6 @@ final class OAuth2Service {
             case .success(let tokenResponse):
                 let token = tokenResponse.access_token
                 OAuth2TokenStorage.shared.token = token
-                
                 DispatchQueue.main.async {
                     completion(.success(token))
                     self?.activeTokenRequestIfIs = nil
@@ -79,7 +80,7 @@ final class OAuth2Service {
                 }
                 
             case .failure(let error):
-                print("[OAuth2Service] Network error: \(error.localizedDescription)")
+                print("[OAuth2Service]: tokenRequestError - \(error.localizedDescription), код: \(code)")
                 DispatchQueue.main.async {
                     completion(.failure(error))
                     self?.activeTokenRequestIfIs = nil

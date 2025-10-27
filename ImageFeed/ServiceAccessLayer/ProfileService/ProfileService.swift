@@ -43,6 +43,7 @@ final class ProfileService {
         task?.cancel()
         
         guard let request = makeProfileRequest(token: token) else {
+            print("[ProfileService]: invalidRequest - не удалось создать URL запроса")
             DispatchQueue.main.async {
                 completion(.failure(URLError(.badURL)))
             }
@@ -66,6 +67,7 @@ final class ProfileService {
                 }
                 
             case .failure(let error):
+                print("[ProfileService]: profileRequestError - \(error.localizedDescription)")
                 DispatchQueue.main.async {
                     completion(.failure(error))
                 }
