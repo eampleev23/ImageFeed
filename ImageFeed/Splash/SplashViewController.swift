@@ -83,7 +83,7 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
         
         // Создаем экземпляр нужного контроллера из Storyboard
         let tabBarController = UIStoryboard(name: "Main", bundle: .main)
-            .instantiateViewController(withIdentifier: "TabBarViewController")
+            .instantiateViewController(withIdentifier: "TabBarController")
         tabBarController.view.backgroundColor = .ypBlack
         
         // Установим в `rootViewController` полученный контроллер
