@@ -65,56 +65,25 @@ final class OAuth2Service {
             return
         }
         
-        let tokenRequestToDo = URLSession.shared.dataTask(with: newTokenRequestURL) { data, response, error in
-            
-            if let error {
-                print("[OAuth2Service] Network error: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    completion(.failure(error))
-                }
-                return
-            }
-            
-            guard let httpResponse = response as? HTTPURLResponse else {
-                print("[OAuth2Service] Invalid response type")
-                DispatchQueue.main.async {
-                    completion(.failure(AuthServiceErrors.codeError))
-                }
-                return
-            }
-            
-            guard (200...299).contains(httpResponse.statusCode) else {
-                print("[OAuth2Service] Server returned error status code: \(httpResponse.statusCode)")
-                DispatchQueue.main.async {
-                    completion(.failure(AuthServiceErrors.codeError))
-                }
-                return
-            }
-            
-            guard let data = data else {
-                print("[OAuth2Service] No data received")
-                DispatchQueue.main.async {
-                    completion(.failure(AuthServiceErrors.parsingError))
-                }
-                return
-            }
-            
-            do {
-                let tokenResponse = try JSONDecoder().decode(OAuthTokenResponseBody.self, from: data)
+        // Используем новый универсальный метод
+        let tokenRequestToDo = URLSession.shared.objectTask(for: newTokenRequestURL) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+            switch result {
+            case .success(let tokenResponse):
                 let token = tokenResponse.access_token
-                
                 OAuth2TokenStorage.shared.token = token
                 
                 DispatchQueue.main.async {
                     completion(.success(token))
-                    self.activeTokenRequestIfIs = nil
-                    self.activeAuthCodeIfIs = nil
+                    self?.activeTokenRequestIfIs = nil
+                    self?.activeAuthCodeIfIs = nil
                 }
                 
-            } catch {
-                print("[OAuth2Service] JSON parsing error: \(error.localizedDescription)")
+            case .failure(let error):
+                print("[OAuth2Service] Network error: \(error.localizedDescription)")
                 DispatchQueue.main.async {
                     completion(.failure(error))
+                    self?.activeTokenRequestIfIs = nil
+                    self?.activeAuthCodeIfIs = nil
                 }
             }
         }
