@@ -8,7 +8,7 @@
 import UIKit
 import Kingfisher
 
-enum ProfileLayotConstants {
+private enum ProfileLayotConstants {
     
     static let globalLeadingAndRightAnchor: CGFloat = 16
     static let globalTopAnchor: CGFloat = 8
@@ -189,8 +189,7 @@ final class ProfileViewController: UIViewController {
         }
         
         // Создаем экземпляр нужного контроллера из Storyboard
-        let splashViewController = UIStoryboard(name: "Main", bundle: .main)
-            .instantiateViewController(withIdentifier: "SplashViewController")
+        let splashViewController = SplashViewController()
         
         // Установим в `rootViewController` полученный контроллер
         window.rootViewController = splashViewController

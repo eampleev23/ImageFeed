@@ -20,7 +20,6 @@ final class AuthViewController: UIViewController {
         static let loginUIButtonTrailingAnchor: CGFloat = -16
         static let loginUIButtonHeightAnchor: CGFloat = 48
         static let loginUIButtonBottomAnchor: CGFloat = -106
-        static let segueIDFromStoryBoard: String = "ShowWebView"
     }
     
     private let oauth2Service = OAuth2Service.shared
@@ -58,19 +57,6 @@ final class AuthViewController: UIViewController {
         setupButtonTarget()
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == AuthConstants.segueIDFromStoryBoard {
-            guard
-                let webViewViewController = segue.destination as? WebViewViewController
-            else {
-                fatalError("Failed to prepare for \(AuthConstants.segueIDFromStoryBoard)")
-            }
-            webViewViewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
-        }
-    }
-    
     private func setupView(){
         
         view.backgroundColor = YPColors.black
@@ -80,7 +66,20 @@ final class AuthViewController: UIViewController {
     
     @objc
     private func didTapLoginBtn(){
-        performSegue(withIdentifier: AuthConstants.segueIDFromStoryBoard, sender: self)
+        showWebViewViewController()
+    }
+    
+    private func showWebViewViewController() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        guard let webViewViewController = storyboard.instantiateViewController(withIdentifier: "WebViewViewController") as? WebViewViewController else {
+            fatalError("Failed to instantiate WebViewViewController from Storyboard")
+        }
+        
+        webViewViewController.delegate = self
+        let navigationController = UINavigationController(rootViewController: webViewViewController)
+        navigationController.modalPresentationStyle = .fullScreen
+        
+        present(navigationController, animated: true)
     }
     
     private func setupConstraints(){
@@ -157,7 +156,8 @@ extension AuthViewController: WebViewViewControllerDelegate {
     }
     
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
-        navigationController?.popViewController(animated: true)
+        //        navigationController?.popViewController(animated: true)
+        dismiss(animated: true)
     }
 }
 

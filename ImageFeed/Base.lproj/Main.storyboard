@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="6DA-iE-sOH">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
@@ -184,24 +184,6 @@
             </objects>
             <point key="canvasLocation" x="946" y="-694"/>
         </scene>
-        <!--Splash View Controller-->
-        <scene sceneID="nHT-BK-XDZ">
-            <objects>
-                <viewController storyboardIdentifier="SplashViewController" title="Splash View Controller" id="6DA-iE-sOH" customClass="SplashViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="FVL-6i-x0m">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <viewLayoutGuide key="safeArea" id="q71-Eq-Wan"/>
-                        <color key="backgroundColor" name="YP Black"/>
-                    </view>
-                    <connections>
-                        <segue destination="Gf8-oL-bgb" kind="presentation" identifier="showAuthenticationScreenSegue" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="ZXu-2i-WuT"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="M8G-aM-iad" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-1557" y="-232"/>
-        </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="Pg8-wa-OOg">
             <objects>
@@ -222,7 +204,7 @@
         <!--Web View View Controller-->
         <scene sceneID="Z05-xC-5wq">
             <objects>
-                <viewController title="Web View View Controller" id="T9A-Nc-03V" customClass="WebViewViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="WebViewViewController" title="Web View View Controller" useStoryboardIdentifierAsRestorationIdentifier="YES" id="T9A-Nc-03V" customClass="WebViewViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="rHS-9A-e0S">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -242,7 +224,7 @@
                     <toolbarItems/>
                     <navigationItem key="navigationItem" id="OAy-4g-8DP"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="f9c-ou-fgI">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="44"/>
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>

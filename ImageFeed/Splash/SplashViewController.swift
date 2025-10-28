@@ -9,9 +9,25 @@ import UIKit
 
 final class SplashViewController: UIViewController, AuthViewControllerDelegate {
     
+    private enum SplashConstants {
+        static let logoImageName: String = "logo_of_unsplash"
+    }
+    
     private let storage = OAuth2TokenStorage()
     private let profileService = ProfileService.shared
-    private let showAuthenticationScreenSegueIdentifier = "showAuthenticationScreenSegue"
+    
+    // MARK: - UI Elements
+    private let logoImageView: UIImageView = {
+        let imageView = UIImageView(image: UIImage(named: SplashConstants.logoImageName))
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupView()
+        setupConstraints()
+    }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -19,30 +35,30 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
         if let token = storage.token {
             //Пользователь авторизован
             fetchProfile(token: token)
-            //            switchToTabBarController()
         } else {
             //Пользователь не авторизован
-            performSegue(withIdentifier: showAuthenticationScreenSegueIdentifier, sender: nil)
+            showAuthViewController()
         }
     }
+    // MARK: - Setup Methods
+    private func setupView() {
+        view.backgroundColor = YPColors.black
+        view.addSubview(logoImageView) // ДОБАВЛЕНО: Добавляем imageView на view
+    }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Проверим, что переходим именно на авторизацию
-        if segue.identifier == "showAuthenticationScreenSegue" {
-            
-            // Доберемся до первого контроллера в навигации
-            guard
-                let navigationController = segue.destination as? UINavigationController,
-                let viewController = navigationController.viewControllers.first as? AuthViewController
-            else {
-                assertionFailure("Faild to prepare  for \(showAuthenticationScreenSegueIdentifier)")
-                return
-            }
-            
-            viewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
-        }
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            logoImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            logoImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+    }
+    
+    // ДОБАВЛЕНО: Новый метод для показа экрана авторизации программно
+    private func showAuthViewController() {
+        let authViewController = AuthViewController()
+        authViewController.delegate = self
+        authViewController.modalPresentationStyle = .fullScreen
+        present(authViewController, animated: true)
     }
     
     func didAuthenticate(_ vc: AuthViewController) {
@@ -50,7 +66,6 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
         guard let token = OAuth2TokenStorage.shared.token else { return }
         vc.dismiss(animated: true)
         fetchProfile(token: token)
-        //        switchToTabBarController()
     }
     
     private func fetchProfile(token: String) {
@@ -83,20 +98,14 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
     }
     
     private func switchToTabBarController(){
-        
-        // Получаем активную window scene
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = windowScene.windows.first else {
             assertionFailure("Invalid window configuration")
             return
         }
-        
-        // Создаем экземпляр нужного контроллера из Storyboard
         let tabBarController = UIStoryboard(name: "Main", bundle: .main)
             .instantiateViewController(withIdentifier: "TabBarController")
         tabBarController.view.backgroundColor = .ypBlack
-        
-        // Установим в `rootViewController` полученный контроллер
         window.rootViewController = tabBarController
     }
 }
