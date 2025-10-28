@@ -81,9 +81,9 @@ final class ProfileImageService {
         }
     
     private func makeProfileRequest(token: String, username: String) -> URLRequest? {
-        guard let url = URL(string: "https://api.unsplash.com/users/\(username)") else {
-            return nil
-        }
+        
+        let sanitizedUsername = username.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? username
+        let url = AppConstants.getUserURL.appendingPathComponent(sanitizedUsername)
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"

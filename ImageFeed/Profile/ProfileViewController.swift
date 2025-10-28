@@ -5,8 +5,8 @@
 //  Created by Евгений Амплеев on 12.10.2025.
 //
 
-import UIKit
 import Kingfisher
+import UIKit
 
 private enum ProfileLayotConstants {
     
@@ -15,19 +15,12 @@ private enum ProfileLayotConstants {
     static let globalOneLineUILabelNumberOfLines: Int = 1
     static let globalFontSizeUILabelStandart: CGFloat = 13
     
-    static let profileImageViewImageName: String = "avatar"
     static let profileImageViewTopAnchor: CGFloat = 32
     static let profileImageViewHeightAndWidth: CGFloat = 70
     static let profileImageViewCornerRadius: CGFloat = 35
     
-    static let fullNameUILabelText: String = "Екатерина Новикова"
     static let fullNameUILabelFontSize: CGFloat = 23
     
-    static let nicknameUILabelText: String = "@ekaterina_nov"
-    
-    static let bioUILabelText: String = "Hello, world!"
-    
-    static let logoutUIButtonImageName: String = "logout_btn"
     static let logoutUIButtonRightAnchor: CGFloat = -16
     static let logoutUIButtonTopAnchor: CGFloat = 45
 }
@@ -35,18 +28,16 @@ private enum ProfileLayotConstants {
 final class ProfileViewController: UIViewController {
     
     // MARK: - UI Elements
-    
-    private let profileImageView: UIImageView = {
-        
-        let imageView = UIImageView(image: UIImage(named: ProfileLayotConstants.profileImageViewImageName))
+    private lazy var profileImageView: UIImageView = {
+        let imageView = UIImageView(image: UIImage(resource: .avatarPlaceholder))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
-    private let fullNameUILabelView: UILabel = {
+    private lazy var fullNameUILabelView: UILabel = {
         
         let labelView = UILabel()
-        labelView.text = ProfileLayotConstants.fullNameUILabelText
+        labelView.text = ""
         labelView.translatesAutoresizingMaskIntoConstraints = false
         labelView.font = UIFont.systemFont(ofSize: ProfileLayotConstants.fullNameUILabelFontSize, weight: .bold)
         labelView.textColor = YPColors.white
@@ -54,9 +45,9 @@ final class ProfileViewController: UIViewController {
         return labelView
     }()
     
-    private let nicknameUILabelView: UILabel = {
+    private lazy var nicknameUILabelView: UILabel = {
         let labelView = UILabel()
-        labelView.text = ProfileLayotConstants.nicknameUILabelText
+        labelView.text = ""
         labelView.translatesAutoresizingMaskIntoConstraints = false
         labelView.font = UIFont.systemFont(ofSize: ProfileLayotConstants.globalFontSizeUILabelStandart, weight: .regular)
         labelView.textColor = YPColors.gray
@@ -64,9 +55,9 @@ final class ProfileViewController: UIViewController {
         return labelView
     }()
     
-    private let bioUILabelView: UILabel = {
+    private lazy var bioUILabelView: UILabel = {
         let labelView = UILabel()
-        labelView.text = ProfileLayotConstants.bioUILabelText
+        labelView.text = ""
         labelView.translatesAutoresizingMaskIntoConstraints = false
         labelView.font = UIFont.systemFont(ofSize: ProfileLayotConstants.globalFontSizeUILabelStandart, weight: .regular)
         labelView.textColor = YPColors.white
@@ -74,9 +65,9 @@ final class ProfileViewController: UIViewController {
         return labelView
     }()
     
-    private let logoutUIButton: UIButton = {
+    private lazy var logoutUIButton: UIButton = {
         let uiButton = UIButton()
-        uiButton.setImage(UIImage(named: ProfileLayotConstants.logoutUIButtonImageName), for: .normal)
+        uiButton.setImage(UIImage(resource: .logoutBtn), for: .normal)
         uiButton.tintColor = YPColors.red
         uiButton.translatesAutoresizingMaskIntoConstraints = false
         return uiButton

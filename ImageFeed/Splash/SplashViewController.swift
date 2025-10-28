@@ -122,9 +122,7 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
             UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: {
                 window.rootViewController = tabBarController
             }, completion: { success in
-                if success {
-                    print("[SplashViewController, switchToTabBarController]: успешно переключились на TabBarController")
-                } else {
+                if !success {
                     print("[SplashViewController, switchToTabBarController]: ошибка анимации перехода")
                 }
             })

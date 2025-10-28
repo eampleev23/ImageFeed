@@ -10,6 +10,11 @@ import UIKit
 
 final class ImageListCell: UITableViewCell {
     
+    private enum ImageListCellConstants {
+        static let likeImageResourse: ImageResource = .activeSVG
+        static let noLikeImageResourse: ImageResource = .noActiveSVG
+    }
+    
     static let reuseIdentifier = "ImageListCell"
     
     private let gradientHeight: CGFloat = 30
@@ -73,7 +78,9 @@ final class ImageListCell: UITableViewCell {
     }
     
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        super.init(coder: coder)
+        assertionFailure("init(coder:) has not been implemented")
+        return nil
     }
     
     private func setupUI() {
@@ -137,9 +144,11 @@ final class ImageListCell: UITableViewCell {
     }
     
     private func updateLikeButtonAppearance() {
-        let imageName = isLiked ? "ActiveSVG" : "NoActiveSVG"
-        let image = UIImage(named: imageName)
         
-        likeBtn.setImage(image, for: .normal)
+        let uiImage = isLiked ?
+        UIImage(resource: ImageListCellConstants.likeImageResourse)
+        :  UIImage(resource: ImageListCellConstants.noLikeImageResourse)
+        
+        likeBtn.setImage(uiImage, for: .normal)
     }
 }

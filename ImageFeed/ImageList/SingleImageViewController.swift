@@ -12,7 +12,7 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
     private let shareButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(named: "single_image_sharing_button"), for: .normal)
+        button.setImage(UIImage(resource: .singleImageSharingButton), for: .normal)
         return button
     }()
     
@@ -37,7 +37,7 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
     private let backButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(named: "single_img_back_btn"), for: .normal)
+        button.setImage(UIImage(resource: .singleImgBackBtn), for: .normal)
         return button
     }()
     

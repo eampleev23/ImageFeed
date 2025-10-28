@@ -10,12 +10,10 @@ import UIKit
 final class AuthViewController: UIViewController {
     
     private enum AuthConstants {
-        static let translatesAutoresizingMaskIntoConstraints: Bool = false
-        static let logoImageViewImageName: String = "logo_of_unsplash"
+        static let logoImageViewImageResourse: ImageResource = .logoOfUnsplash
         static let loginUIButtonText: String = "Войти"
         static let loginUIButtonFontSize: CGFloat = 17
         static let loginUIButtonCornerRadius: CGFloat = 16
-        static let loginUIButtonMasksToBounds: Bool = true
         static let loginUIButtonLeadingAnchor: CGFloat = 16
         static let loginUIButtonTrailingAnchor: CGFloat = -16
         static let loginUIButtonHeightAnchor: CGFloat = 48
@@ -26,17 +24,17 @@ final class AuthViewController: UIViewController {
     weak var delegate: AuthViewControllerDelegate?
     
     // MARK: - UI Elements
-    private let logoImageView: UIImageView = {
+    private lazy var logoImageView: UIImageView = {
         
-        let imageView = UIImageView(image: UIImage(named: AuthConstants.logoImageViewImageName))
-        imageView.translatesAutoresizingMaskIntoConstraints = AuthConstants.translatesAutoresizingMaskIntoConstraints
+        let imageView = UIImageView(image: UIImage(resource: AuthConstants.logoImageViewImageResourse))
+        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
-    private let loginUIButton: UIButton = {
+    private lazy var loginUIButton: UIButton = {
         let uiButton = UIButton()
         uiButton.tintColor = YPColors.white
-        uiButton.translatesAutoresizingMaskIntoConstraints = AuthConstants.translatesAutoresizingMaskIntoConstraints
+        uiButton.translatesAutoresizingMaskIntoConstraints = false
         
         uiButton.setTitle(AuthConstants.loginUIButtonText, for: .normal)
         uiButton.titleLabel?.font = UIFont.systemFont(ofSize: AuthConstants.loginUIButtonFontSize, weight: .bold)
@@ -44,7 +42,7 @@ final class AuthViewController: UIViewController {
         
         uiButton.backgroundColor = YPColors.white
         uiButton.layer.cornerRadius = AuthConstants.loginUIButtonCornerRadius
-        uiButton.layer.masksToBounds = AuthConstants.loginUIButtonMasksToBounds
+        uiButton.layer.masksToBounds = true
         
         return uiButton
     }()
@@ -157,7 +155,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
     
     private func showErrorAlert(error: Error) {
         let alert = UIAlertController(
-            title: "Что-то пошло не так",
+            title: "Что-то пошло не так(",
             message: "Не удалось войти в систему",
             preferredStyle: .alert
         )

@@ -79,9 +79,8 @@ final class ProfileService {
     }
     
     private func makeProfileRequest(token: String) -> URLRequest? {
-        guard let url = URL(string: "https://api.unsplash.com/me") else {
-            return nil
-        }
+        
+        let url = AppConstants.getUserAvatarURL
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -89,29 +88,6 @@ final class ProfileService {
         return request
     }
     
-    // Функция для вывода сырого JSON
-    private func printRawJSON(data: Data) {
-        if let jsonString = String(data: data, encoding: .utf8) {
-            print("=== RAW JSON RESPONSE ===")
-            print(jsonString)
-            print("=== END OF JSON ===")
-        } else {
-            print("Не удалось преобразовать данные в строку")
-        }
-        
-        // Альтернативный вариант: красивый вывод с форматированием
-        do {
-            let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
-            let prettyData = try JSONSerialization.data(withJSONObject: jsonObject, options: .prettyPrinted)
-            if let prettyString = String(data: prettyData, encoding: .utf8) {
-                print("=== PRETTY JSON ===")
-                print(prettyString)
-                print("=== END OF PRETTY JSON ===")
-            }
-        } catch {
-            print("Не удалось отформатировать JSON: \(error)")
-        }
-    }
 }
 
 extension ProfileService {

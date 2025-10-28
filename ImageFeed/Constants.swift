@@ -8,11 +8,31 @@
 import Foundation
 enum AppConstants {
     
-    static let barerTokenKey: String = "bearerToken"
+    static let defaultBaseURL = URL(string: "https://api.unsplash.com")!
+    static let authBaseURL = URL(string: "https://unsplash.com")!
     
-    static let accessKey: String = "X-1eXvB7L_d_xxtcNznixBqMP1iAY1_5uqxsowou_Ps"
-    static let secretKey: String = "atBFyx3l0uQtulX81FccgPgSRT1StNUgX7gIBTvtIzQ"
-    static let redirectURI: String = "urn:ietf:wg:oauth:2.0:oob"
-    static let accessScope: String = "public+read_user+write_likes"
-    static let defaultBaseURL: URL = URL(string: "https://api.unsplash.com")!
+    // OAuth параметры
+    static let accessKey = "X-1eXvB7L_d_xxtcNznixBqMP1iAY1_5uqxsowou_Ps"
+    static let secretKey = "atBFyx3l0uQtulX81FccgPgSRT1StNUgX7gIBTvtIzQ"
+    static let redirectURI = "urn:ietf:wg:oauth:2.0:oob"
+    static let accessScope = "public+read_user+write_likes"
+    static let barerTokenKey = "bearerToken"
+    
+    static var getAuthTokenURL: URL {
+        return authBaseURL.appendingPathComponent("/oauth/token")
+    }
+    
+    static var authorizeURL: URL {
+        return authBaseURL.appendingPathComponent("/oauth/authorize")
+    }
+    
+    static var getUserURL: URL {
+        return defaultBaseURL.appendingPathComponent("/users/")
+    }
+    
+    static var getUserAvatarURL: URL {
+        return defaultBaseURL.appendingPathComponent("/me")
+    }
+    
+    
 }
