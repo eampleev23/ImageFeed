@@ -66,20 +66,18 @@ final class AuthViewController: UIViewController {
     
     @objc
     private func didTapLoginBtn(){
+        print("[AuthViewController, didTapLoginBtn]: нажата кнопка входа")
         showWebViewViewController()
     }
     
     private func showWebViewViewController() {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        guard let webViewViewController = storyboard.instantiateViewController(withIdentifier: "WebViewViewController") as? WebViewViewController else {
-            fatalError("Failed to instantiate WebViewViewController from Storyboard")
-        }
-        
+        print("[AuthViewController, showWebViewViewController]: создаем WebViewViewController программно")
+        let webViewViewController = WebViewViewController()
         webViewViewController.delegate = self
         let navigationController = UINavigationController(rootViewController: webViewViewController)
         navigationController.modalPresentationStyle = .fullScreen
-        
         present(navigationController, animated: true)
+        print("[AuthViewController, showWebViewViewController]: WebViewViewController показан")
     }
     
     private func setupConstraints(){
@@ -122,7 +120,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
     
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         
-        print("Authorization code received: \(code)")
+        print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: получен код авторизации: \(code)")
         UIBlockingProgressHUD.show()
         
         oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
@@ -130,13 +128,13 @@ extension AuthViewController: WebViewViewControllerDelegate {
             
             switch result {
             case .success(let token):
-                print("Successfully received token: \(token)")
+                print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: успешно получен токен: \(token.prefix(10))...")
                 DispatchQueue.main.async {
-                    self?.delegate?.didAuthenticate(self ?? AuthViewController())
+                    self?.switchToTabBarController()
                 }
                 
             case .failure(let error):
-                print("Failed to get token: \(error.localizedDescription)")
+                print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: ошибка получения токена: \(error.localizedDescription)")
                 // Показываем alert с ошибкой
                 DispatchQueue.main.async {
                     self?.showErrorAlert(error: error)
@@ -145,7 +143,32 @@ extension AuthViewController: WebViewViewControllerDelegate {
         }
     }
     
+    private func switchToTabBarController() {
+        print("[AuthViewController, switchToTabBarController]: переключаемся на TabBarController")
+        
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else {
+            print("[AuthViewController, switchToTabBarController]: ошибка - не удалось найти window")
+            return
+        }
+        
+        let tabBarController = TabBarController()
+        
+        // ✅ Анимация перехода
+        let transition = CATransition()
+        transition.duration = 0.3
+        transition.type = .push
+        transition.subtype = .fromRight
+        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        
+        window.layer.add(transition, forKey: kCATransition)
+        window.rootViewController = tabBarController
+        
+        print("[AuthViewController, switchToTabBarController]: успешно переключились на TabBarController")
+    }
+    
     private func showErrorAlert(error: Error) {
+        print("[AuthViewController, showErrorAlert]: показываем alert с ошибкой")
         let alert = UIAlertController(
             title: "Что-то пошло не так",
             message: "Не удалось войти в систему",
@@ -156,8 +179,30 @@ extension AuthViewController: WebViewViewControllerDelegate {
     }
     
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
-        //        navigationController?.popViewController(animated: true)
-        dismiss(animated: true)
+        print("[AuthViewController, webViewViewControllerDidCancel]: пользователь отменил авторизацию")
+        goBackToSplash()
+    }
+    private func goBackToSplash() {
+        
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else {
+            print("[AuthViewController, goBackToSplash]: ошибка - не удалось найти window")
+            return
+        }
+        
+        let splashViewController = SplashViewController()
+        
+        // Анимация перехода слева
+        let transition = CATransition()
+        transition.duration = 0.3
+        transition.type = .push
+        transition.subtype = .fromLeft
+        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        
+        window.layer.add(transition, forKey: kCATransition)
+        window.rootViewController = splashViewController
+        
+        print("[AuthViewController, goBackToSplash]: успешно вернулись к SplashViewController")
     }
 }
 

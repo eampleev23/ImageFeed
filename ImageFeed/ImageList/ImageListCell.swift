@@ -10,50 +10,113 @@ import UIKit
 
 final class ImageListCell: UITableViewCell {
     
-    @IBOutlet var likeBtn: UIButton!
-    @IBOutlet var picture: UIImageView!
-    @IBOutlet var publishDate: UILabel!
-    
     static let reuseIdentifier = "ImageListCell"
     
-    private let gradientHeight:CGFloat = 30
+    private let gradientHeight: CGFloat = 30
     
     private var gradientAdded = false
     
+    
+    private let likeBtn: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    let picture: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 16
+        return imageView
+    }()
+    
+    let publishDate: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 13)
+        label.textColor = .ypWhite
+        return label
+    }()
+    
     var isLiked: Bool = false {
-        didSet{
+        didSet {
             updateLikeButtonAppearance()
         }
     }
     
-    @IBAction func likeButtonTapped(_ sender: Any) {
-        isLiked.toggle()
+    private func setupConstraints() {
+        print("[ImageListCell, setupConstraints]: настраиваем констрейнты")
+        NSLayoutConstraint.activate([
+            // Picture
+            picture.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            picture.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            picture.topAnchor.constraint(equalTo: contentView.topAnchor),
+            picture.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+            
+            // Publish Date
+            publishDate.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
+            publishDate.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+            
+            // Like Button
+            likeBtn.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -14),
+            likeBtn.topAnchor.constraint(equalTo: contentView.topAnchor, constant: -12),
+            likeBtn.widthAnchor.constraint(equalToConstant: 68),
+            likeBtn.heightAnchor.constraint(equalToConstant: 58)
+        ])
     }
     
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        gradientAdded = false
-        isLiked = false
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        print("[ImageListCell, init]: создаем ячейку программно")
+        setupUI()
+        setupConstraints()
     }
     
-    override func awakeFromNib() {
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupUI() {
+        print("[ImageListCell, setupUI]: настраиваем UI элементы")
+        backgroundColor = .ypBlack
+        contentView.backgroundColor = .ypBlack
+        selectionStyle = .none
         
-        super.awakeFromNib()
+        contentView.addSubview(picture)
+        contentView.addSubview(publishDate)
+        contentView.addSubview(likeBtn)
+        
+        likeBtn.addTarget(self, action: #selector(likeButtonTapped), for: .touchUpInside)
+        
         let selectionView = UIView()
         selectionView.backgroundColor = UIColor.clear
         self.selectedBackgroundView = selectionView
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        let insets = UIEdgeInsets(top: 0, left: 0, bottom: 8, right: 0)
-        contentView.frame = contentView.frame.inset(by: insets)
+    @objc private func likeButtonTapped(_ sender: Any) {
+        print("[ImageListCell, likeButtonTapped]: нажата кнопка лайка")
+        isLiked.toggle()
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        print("[ImageListCell, prepareForReuse]: подготавливаем ячейку к повторному использованию")
+        picture.image = nil
+        publishDate.text = nil
+        gradientAdded = false
+        isLiked = false
+        picture.layer.sublayers?.removeAll { $0 is CAGradientLayer }
     }
     
     func addGradientIfNeeded() {
+        print("[ImageListCell, addGradientIfNeeded]: добавляем градиент если нужно")
         
-        guard !gradientAdded, picture.bounds.width > 0 else { return }
+        guard !gradientAdded, picture.bounds.width > 0 else {
+            print("[ImageListCell, addGradientIfNeeded]: градиент уже добавлен или bounds нулевые")
+            return
+        }
         
         picture.layer.sublayers?.removeAll { $0 is CAGradientLayer }
         
@@ -77,9 +140,11 @@ final class ImageListCell: UITableViewCell {
         
         picture.layer.addSublayer(gradientLayer)
         gradientAdded = true
+        print("[ImageListCell, addGradientIfNeeded]: градиент успешно добавлен")
     }
     
     private func updateLikeButtonAppearance() {
+        print("[ImageListCell, updateLikeButtonAppearance]: обновляем внешний вид кнопки лайка - isLiked: \(isLiked)")
         let imageName = isLiked ? "ActiveSVG" : "NoActiveSVG"
         let image = UIImage(named: imageName)
         

@@ -62,7 +62,7 @@ final class WebViewProgressController: NSObject {
     }
     
     func stopObserving() {
-        guard isObserving, let webView = webView else { return }
+        guard isObserving, webView != nil else { return }
         
         estimatedProgressObservation = nil
         isObserving = false

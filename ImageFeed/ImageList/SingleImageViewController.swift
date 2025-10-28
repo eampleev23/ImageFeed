@@ -9,65 +9,52 @@ import UIKit
 
 final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
     
+    private let shareButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(named: "single_image_sharing_button"), for: .normal)
+        return button
+    }()
+    
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.contentInsetAdjustmentBehavior = .never
+        scrollView.minimumZoomScale = 0.1
+        scrollView.maximumZoomScale = 3.0
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.showsVerticalScrollIndicator = false
+        return scrollView
+    }()
+    
+    private let imageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
+    private let backButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(named: "single_img_back_btn"), for: .normal)
+        return button
+    }()
+    
     private var doubleTapGestureRecognizer: UITapGestureRecognizer!
     
-    @IBOutlet var shareButton: UIButton!
-    @IBOutlet private var scrollView: UIScrollView!
-    @IBOutlet private var imageView: UIImageView!
-    
     var image: UIImage? {
-        didSet{
+        didSet {
             guard isViewLoaded else { return }
             setImageAndConfigureLayout()
         }
     }
     
-    @IBAction func didTapShareButton(_ sender: Any) {
-        guard let image = image else { return }
-        
-        let activityViewController = UIActivityViewController(
-            activityItems: [image],
-            applicationActivities: nil
-        )
-        
-        // Базовая кастомизация
-        activityViewController.excludedActivityTypes = [
-            .addToReadingList,
-            .assignToContact,
-            .openInIBooks,
-            .markupAsPDF
-        ]
-        
-        // Настройка для iPad
-        if let popoverController = activityViewController.popoverPresentationController {
-            popoverController.sourceView = shareButton
-            popoverController.sourceRect = shareButton.bounds
-            popoverController.permittedArrowDirections = .any
-            popoverController.backgroundColor = .systemBackground
-        }
-        
-        // Стиль как в нативных приложениях
-        if #available(iOS 13.0, *) {
-            activityViewController.isModalInPresentation = true
-        }
-        
-        present(activityViewController, animated: true)
-    }
-    
-    @IBAction func didTapBackButton(_ sender: Any) {
-        dismiss(animated: true, completion: nil)
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Пока устанавливаем временные значения
-        scrollView.contentInsetAdjustmentBehavior = .never
-        scrollView.minimumZoomScale = 0.1
-        scrollView.maximumZoomScale = 3.0
-        
-        imageView.image = image
-        // Настраиваем распознаватель двойного тапа
+        setupUI()
+        setupConstraints()
         setupDoubleTapGesture()
         setImageAndConfigureLayout()
     }
@@ -77,36 +64,105 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
         centerImage()
     }
     
+    private func setupUI() {
+        view.backgroundColor = .ypBlack
+        
+        view.addSubview(scrollView)
+        scrollView.addSubview(imageView)
+        view.addSubview(backButton)
+        view.addSubview(shareButton)
+        
+        scrollView.delegate = self
+        
+        backButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
+        shareButton.addTarget(self, action: #selector(didTapShareButton), for: .touchUpInside)
+        
+        imageView.image = image
+    }
+    
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            backButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            backButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 2),
+            
+            shareButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            shareButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -51)
+        ])
+    }
+    
     private func setupDoubleTapGesture() {
         doubleTapGestureRecognizer = UITapGestureRecognizer(
             target: self,
-            action: #selector(handleDoubleTap(_:))
+            action: #selector(handleDoubleTap)
         )
         doubleTapGestureRecognizer.numberOfTapsRequired = 2
         scrollView.addGestureRecognizer(doubleTapGestureRecognizer)
     }
+    
+    @objc private func didTapShareButton(_ sender: Any) {
+        guard let image = image else {
+            print("[SingleImageViewController, didTapShareButton]: ошибка - изображение отсутствует")
+            return
+        }
+        
+        let activityViewController = UIActivityViewController(
+            activityItems: [image],
+            applicationActivities: nil
+        )
+        
+        activityViewController.excludedActivityTypes = [
+            .addToReadingList,
+            .assignToContact,
+            .openInIBooks,
+            .markupAsPDF
+        ]
+        
+        if let popoverController = activityViewController.popoverPresentationController {
+            popoverController.sourceView = shareButton
+            popoverController.sourceRect = shareButton.bounds
+            popoverController.permittedArrowDirections = .any
+            popoverController.backgroundColor = .systemBackground
+        }
+        
+        if #available(iOS 13.0, *) {
+            activityViewController.isModalInPresentation = true
+        }
+        
+        present(activityViewController, animated: true)
+    }
+    
+    @objc private func didTapBackButton(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
+    }
+    
     @objc private func handleDoubleTap(_ recognizer: UITapGestureRecognizer) {
         let tapPoint = recognizer.location(in: imageView)
         
         if scrollView.zoomScale > scrollView.minimumZoomScale {
-            // Если уже увеличен - возвращаем к минимальному zoom
+            // Если уже увеличен - возвращаем к минимальному zoom (полный обзор)
             scrollView.setZoomScale(scrollView.minimumZoomScale, animated: true)
         } else {
             // Увеличиваем в 2 раза относительно точки тапа
-            let zoomScale = min(scrollView.maximumZoomScale, 1.1)
-            let zoomRect = zoomRectForScale(
-                scale: zoomScale,
-                center: tapPoint
-            )
+            let zoomScale = min(scrollView.maximumZoomScale, 2.0)
+            let zoomRect = zoomRectForScale(scale: zoomScale, center: tapPoint)
             scrollView.zoom(to: zoomRect, animated: true)
         }
     }
+    
     private func zoomRectForScale(scale: CGFloat, center: CGPoint) -> CGRect {
         var zoomRect = CGRect.zero
         
-        // Размер zoomRect относительно scale
-        zoomRect.size.height = imageView.frame.size.height / scale
-        zoomRect.size.width = imageView.frame.size.width / scale
+        let currentScale = scrollView.zoomScale
+        let targetScale = scale * currentScale
+        
+        // Размер zoomRect относительно targetScale
+        zoomRect.size.height = imageView.frame.size.height / targetScale
+        zoomRect.size.width = imageView.frame.size.width / targetScale
         
         // Центрируем относительно точки тапа
         zoomRect.origin.x = center.x - (zoomRect.size.width / 2.0)
@@ -118,23 +174,34 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
     private func setImageAndConfigureLayout() {
         imageView.image = image
         
-        guard let image = image else { return }
+        guard let image = image else {
+            print("[SingleImageViewController, setImageAndConfigureLayout]: ошибка - изображение отсутствует")
+            return
+        }
         
-        // Устанавливаем размер imageView равным размеру изображения
-        imageView.frame = CGRect(origin: .zero, size: image.size)
+        let imageSize = image.size
+        let viewSize = view.bounds.size
         
-        // Устанавливаем contentSize scrollView
-        scrollView.contentSize = image.size
+        let widthScale = viewSize.width / imageSize.width
+        let heightScale = viewSize.height / imageSize.height
+        let minScale = min(widthScale, heightScale)
         
-        // Вычисляем и устанавливаем подходящий zoom scale
-        let scale = calculateScaleForImage(image)
-        scrollView.zoomScale = scale
+        let scaledImageSize = CGSize(
+            width: imageSize.width * minScale,
+            height: imageSize.height * minScale
+        )
         
-        // УСТАНАВЛИВАЕМ МИНИМАЛЬНЫЙ ZOOM РАВНЫМ ТЕКУЩЕМУ МАСШТАБУ
-        // Теперь нельзя уменьшить изображение, можно только увеличить
-        scrollView.minimumZoomScale = scale
+        imageView.frame = CGRect(
+            origin: .zero,
+            size: scaledImageSize
+        )
         
-        // Центрируем изображение
+        scrollView.contentSize = scaledImageSize
+        
+        scrollView.zoomScale = minScale
+        scrollView.minimumZoomScale = minScale // Минимальный zoom - чтобы полностью видно изображение
+        scrollView.maximumZoomScale = 3.0
+        
         centerImage()
     }
     
@@ -145,7 +212,6 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
         let widthScale = viewSize.width / imageSize.width
         let heightScale = viewSize.height / imageSize.height
         
-        // Выбираем минимальный scale, чтобы изображение полностью помещалось
         return min(widthScale, heightScale)
     }
     
@@ -173,7 +239,6 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
     }
     
     // MARK: - UIScrollViewDelegate
-    
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return imageView
     }
@@ -182,4 +247,3 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
         centerImage()
     }
 }
-

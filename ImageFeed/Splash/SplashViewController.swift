@@ -33,10 +33,10 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
         super.viewDidAppear(animated)
         
         if let token = storage.token {
-            //Пользователь авторизован
+            print("[SplashViewController, viewDidAppear]: пользователь авторизован")
             fetchProfile(token: token)
         } else {
-            //Пользователь не авторизован
+            print("[SplashViewController, viewDidAppear]: пользователь не авторизован")
             showAuthViewController()
         }
     }
@@ -53,17 +53,40 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
         ])
     }
     
-    // ДОБАВЛЕНО: Новый метод для показа экрана авторизации программно
+    //    private func showAuthViewController() {
+    //        let authViewController = AuthViewController()
+    //        authViewController.delegate = self
+    //        authViewController.modalPresentationStyle = .fullScreen
+    //        present(authViewController, animated: true)
+    //    }
+    
     private func showAuthViewController() {
+        
+        print("[SplashViewController, showAuthViewController]: показываем экран авторизации с переходом слева")
         let authViewController = AuthViewController()
         authViewController.delegate = self
-        authViewController.modalPresentationStyle = .fullScreen
-        present(authViewController, animated: true)
+        
+        let transition = CATransition()
+        transition.duration = 0.3
+        transition.type = .push
+        transition.subtype = .fromRight
+        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        
+        if let window = view.window {
+            window.layer.add(transition, forKey: kCATransition)
+        }
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.rootViewController = authViewController
+        }
     }
     
     func didAuthenticate(_ vc: AuthViewController) {
-        print("func didAuthenticate(_ vc: AuthViewController) in SplashViewController")
-        guard let token = OAuth2TokenStorage.shared.token else { return }
+        guard let token = OAuth2TokenStorage.shared.token else {
+            print("[SplashViewController, didAuthenticate]: ошибка - токен не найден")
+            return
+        }
         vc.dismiss(animated: true)
         fetchProfile(token: token)
     }
@@ -73,9 +96,13 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
         profileService.fetchProfile(
             OAuth2TokenStorage.shared.token ?? "") { [weak self] (result: Result<Profile, Error>) in
                 UIBlockingProgressHUD.dismiss()
-                guard let self = self else { return }
+                guard let self = self else {
+                    print("[SplashViewController, fetchProfile]: ошибка - self освобожден")
+                    return
+                }
                 switch result {
                 case let .success(profile):
+                    print("[SplashViewController, fetchProfile]: профиль успешно загружен, profile.userName: \(profile.userName)")
                     ProfileImageService.shared.fetchProfileImageURL(
                         username: profile.userName
                     ){ result in
@@ -84,7 +111,7 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
                             case .success:
                                 self.switchToTabBarController()
                             case .failure(let error):
-                                print("[SplashViewController, fetchProfile,  ProfileImageService.shared.fetchProfileImageURL]: error: \(error)")
+                                print("[SplashViewController, fetchProfile, ProfileImageService.shared.fetchProfileImageURL]: ошибка загрузки аватара - \(error)")
                                 self.switchToTabBarController()
                             }
                         }
@@ -100,12 +127,20 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
     private func switchToTabBarController(){
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = windowScene.windows.first else {
+            print("[SplashViewController, switchToTabBarController]: ошибка - не удалось найти window")
             assertionFailure("Invalid window configuration")
             return
         }
-        let tabBarController = UIStoryboard(name: "Main", bundle: .main)
-            .instantiateViewController(withIdentifier: "TabBarController")
-        tabBarController.view.backgroundColor = .ypBlack
-        window.rootViewController = tabBarController
+        let tabBarController = TabBarController()
+        
+        UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: {
+            window.rootViewController = tabBarController
+        }, completion: { success in
+            if success {
+                print("[SplashViewController, switchToTabBarController]: успешно переключились на TabBarController")
+            } else {
+                print("[SplashViewController, switchToTabBarController]: ошибка анимации перехода")
+            }
+        })
     }
 }
