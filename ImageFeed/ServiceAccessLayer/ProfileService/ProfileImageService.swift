@@ -36,11 +36,12 @@ final class ProfileImageService {
     func fetchProfileImageURL(
         username: String,
         _ completion: @escaping (Result<String, Error>) -> Void) {
+            
             task?.cancel()
             
             guard let token = OAuth2TokenStorage.shared.token else {
                 let error = NSError(domain: "ProfileImageService", code: 401, userInfo: [NSLocalizedDescriptionKey: "Authorization token missing"])
-                print("[ProfileImageService]: authError - отсутствует токен авторизации")
+                print("[ProfileImageService]: authError - отсутствует токен авторизации: \(error)")
                 completion(.failure(NSError(domain: "ProfileImageService", code: 401, userInfo: [NSLocalizedDescriptionKey: "Authorization token missing"])))
                 return
             }

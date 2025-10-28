@@ -48,9 +48,9 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
         print("func didAuthenticate(_ vc: AuthViewController) in SplashViewController")
         guard let token = OAuth2TokenStorage.shared.token else { return }
-        fetchProfile(token: token)
         vc.dismiss(animated: true)
-        switchToTabBarController()
+        fetchProfile(token: token)
+        //        switchToTabBarController()
     }
     
     private func fetchProfile(token: String) {
@@ -63,7 +63,17 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
                 case let .success(profile):
                     ProfileImageService.shared.fetchProfileImageURL(
                         username: profile.userName
-                    ){ _ in }
+                    ){ result in
+                        DispatchQueue.main.async {
+                            switch result {
+                            case .success:
+                                self.switchToTabBarController()
+                            case .failure(let error):
+                                print("[SplashViewController, fetchProfile,  ProfileImageService.shared.fetchProfileImageURL]: error: \(error)")
+                                self.switchToTabBarController()
+                            }
+                        }
+                    }
                     self.switchToTabBarController()
                 case .failure:
                     //TODO: sprint 11
