@@ -19,7 +19,7 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
         if let token = storage.token {
             //Пользователь авторизован
             fetchProfile(token: token)
-            switchToTabBarController()
+            //            switchToTabBarController()
         } else {
             //Пользователь не авторизован
             performSegue(withIdentifier: showAuthenticationScreenSegueIdentifier, sender: nil)

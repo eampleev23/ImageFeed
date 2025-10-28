@@ -16,8 +16,9 @@ enum ProfileLayotConstants {
     static let globalFontSizeUILabelStandart: CGFloat = 13
     
     static let profileImageViewImageName: String = "avatar"
-    static let profileImageViewTopAnchor: CGFloat = 0
+    static let profileImageViewTopAnchor: CGFloat = 32
     static let profileImageViewHeightAndWidth: CGFloat = 70
+    static let profileImageViewCornerRadius: CGFloat = 35
     
     static let fullNameUILabelText: String = "Екатерина Новикова"
     static let fullNameUILabelFontSize: CGFloat = 23
@@ -28,7 +29,7 @@ enum ProfileLayotConstants {
     
     static let logoutUIButtonImageName: String = "logout_btn"
     static let logoutUIButtonRightAnchor: CGFloat = -16
-    static let logoutUIButtonTopAnchor: CGFloat = 13
+    static let logoutUIButtonTopAnchor: CGFloat = 45
 }
 
 final class ProfileViewController: UIViewController {
@@ -115,21 +116,23 @@ final class ProfileViewController: UIViewController {
     private func updateProfileDetails(with profile: Profile) {
         
         fullNameUILabelView.text = profile.name.isEmpty
-        ? "Имя не указано"
+        ? ""
         : profile.name
         
         nicknameUILabelView.text = profile.loginName.isEmpty
-        ? "Nickname не указан"
+        ? ""
         : profile.loginName
         
         bioUILabelView.text = profile.bio.isEmpty
-        ? "Биография не заполнена"
+        ? ""
         : profile.bio
         
     }
     
     private func setupView(){
         view.backgroundColor = YPColors.black
+        profileImageView.layer.cornerRadius = ProfileLayotConstants.profileImageViewCornerRadius
+        profileImageView.clipsToBounds = true
         view.addSubview(profileImageView)
         view.addSubview(fullNameUILabelView)
         view.addSubview(nicknameUILabelView)
