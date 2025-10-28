@@ -17,7 +17,6 @@ final class WebViewViewController: UIViewController, WKNavigationDelegate {
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
-        print("[WebViewViewController, viewDidLoad]: началась настройка контроллера")
         super.viewDidLoad()
         webView.navigationDelegate = self
         setupProgressController()

@@ -47,7 +47,6 @@ final class ImageListCell: UITableViewCell {
     }
     
     private func setupConstraints() {
-        print("[ImageListCell, setupConstraints]: настраиваем констрейнты")
         NSLayoutConstraint.activate([
             // Picture
             picture.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -57,19 +56,18 @@ final class ImageListCell: UITableViewCell {
             
             // Publish Date
             publishDate.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
-            publishDate.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+            publishDate.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
             
             // Like Button
-            likeBtn.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -14),
-            likeBtn.topAnchor.constraint(equalTo: contentView.topAnchor, constant: -12),
-            likeBtn.widthAnchor.constraint(equalToConstant: 68),
-            likeBtn.heightAnchor.constraint(equalToConstant: 58)
+            likeBtn.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 0),
+            likeBtn.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
+            likeBtn.widthAnchor.constraint(equalToConstant: 44),
+            likeBtn.heightAnchor.constraint(equalToConstant: 44)
         ])
     }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        print("[ImageListCell, init]: создаем ячейку программно")
         setupUI()
         setupConstraints()
     }
@@ -79,7 +77,6 @@ final class ImageListCell: UITableViewCell {
     }
     
     private func setupUI() {
-        print("[ImageListCell, setupUI]: настраиваем UI элементы")
         backgroundColor = .ypBlack
         contentView.backgroundColor = .ypBlack
         selectionStyle = .none
@@ -96,13 +93,11 @@ final class ImageListCell: UITableViewCell {
     }
     
     @objc private func likeButtonTapped(_ sender: Any) {
-        print("[ImageListCell, likeButtonTapped]: нажата кнопка лайка")
         isLiked.toggle()
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        print("[ImageListCell, prepareForReuse]: подготавливаем ячейку к повторному использованию")
         picture.image = nil
         publishDate.text = nil
         gradientAdded = false
@@ -111,7 +106,6 @@ final class ImageListCell: UITableViewCell {
     }
     
     func addGradientIfNeeded() {
-        print("[ImageListCell, addGradientIfNeeded]: добавляем градиент если нужно")
         
         guard !gradientAdded, picture.bounds.width > 0 else {
             print("[ImageListCell, addGradientIfNeeded]: градиент уже добавлен или bounds нулевые")
@@ -140,11 +134,9 @@ final class ImageListCell: UITableViewCell {
         
         picture.layer.addSublayer(gradientLayer)
         gradientAdded = true
-        print("[ImageListCell, addGradientIfNeeded]: градиент успешно добавлен")
     }
     
     private func updateLikeButtonAppearance() {
-        print("[ImageListCell, updateLikeButtonAppearance]: обновляем внешний вид кнопки лайка - isLiked: \(isLiked)")
         let imageName = isLiked ? "ActiveSVG" : "NoActiveSVG"
         let image = UIImage(named: imageName)
         

@@ -15,7 +15,6 @@ final class ImageListViewController: UIViewController {
     }
     
     private lazy var tableView: UITableView = {
-        print("[ImageListViewController, lazy tableView]: создаем tableView")
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = .ypBlack
@@ -42,21 +41,16 @@ final class ImageListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        print("[ImageListViewController, viewDidLoad]: началась настройка контроллера")
-        
         setupView()
         setupConstraints()
     }
     
     private func setupView() {
-        print("[ImageListViewController, setupView]: добавляем tableView на view")
         view.backgroundColor = .ypBlack
         view.addSubview(tableView)
     }
     
     private func setupConstraints() {
-        print("[ImageListViewController, setupConstraints]: настраиваем констрейнты tableView")
         NSLayoutConstraint.activate([
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
@@ -66,7 +60,6 @@ final class ImageListViewController: UIViewController {
     }
     
     private func showSingleImageViewController(for indexPath: IndexPath) {
-        print("[ImageListViewController, showSingleImageViewController]: показываем изображение для indexPath \(indexPath)")
         let singleImageVC = SingleImageViewController()
         let image = UIImage(named: ImageListConstants.photosNames[indexPath.row])
         singleImageVC.image = image
@@ -75,7 +68,6 @@ final class ImageListViewController: UIViewController {
     }
     
     private func configCell(for cell: ImageListCell, with indexPath: IndexPath, isLiked: Bool ) {
-        print("[ImageListViewController, configCell]: настраиваем ячейку для indexPath \(indexPath)")
         
         let imageName = ImageListConstants.photosNames[indexPath.row]
         cell.isLiked = isLiked
@@ -97,15 +89,12 @@ final class ImageListViewController: UIViewController {
 extension ImageListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("[ImageListViewController, tableView(didSelectRowAt)]: выбрана ячейка \(indexPath)")
         showSingleImageViewController(for: indexPath)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        print("[ImageListViewController, tableView(heightForRowAt)]: вычисляем высоту для ячейки \(indexPath)")
         
         if let cacheHeight = heightCache[indexPath] {
-            print("[ImageListViewController, tableView(heightForRowAt)]: используем кэшированную высоту \(cacheHeight)")
             return cacheHeight
         }
         
@@ -121,7 +110,6 @@ extension ImageListViewController: UITableViewDelegate {
             
             let aspectRatio = image.size.height / image.size.width
             imageViewHeight = availableWidth * aspectRatio
-            print("[ImageListViewController, tableView(heightForRowAt)]: вычисленная высота изображения \(imageViewHeight)")
         } else {
             imageViewHeight = ImageListConstants.defaultCellHeight
         }
@@ -130,8 +118,6 @@ extension ImageListViewController: UITableViewDelegate {
         let totalHeight = imageViewHeight + verticalPadding
         
         heightCache[indexPath] = totalHeight
-        print("[ImageListViewController, tableView(heightForRowAt)]: итоговая высота ячейки \(totalHeight)")
-        
         return totalHeight
     }
 }
@@ -140,12 +126,10 @@ extension ImageListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         let count = ImageListConstants.photosNames.count
-        print("[ImageListViewController, tableView(numberOfRowsInSection)]: количество ячеек \(count)")
         return count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        print("[ImageListViewController, tableView(cellForRowAt)]: создаем ячейку для \(indexPath)")
         
         let cell = tableView.dequeueReusableCell(withIdentifier: ImageListCell.reuseIdentifier, for: indexPath)
         
@@ -156,7 +140,6 @@ extension ImageListViewController: UITableViewDataSource {
         
         let isLiked = indexPath.row % 2 == 0
         configCell(for: imageListCell, with: indexPath, isLiked: isLiked)
-        print("[ImageListViewController, tableView(cellForRowAt)]: ячейка успешно настроена")
         
         return imageListCell
     }

@@ -22,30 +22,8 @@ final class TabBarController: UITabBarController {
     }
     
     private func setupTabBarAppearance() {
-        print("[TabBarController, setupTabBarAppearance]: настраиваем внешний вид TabBar")
         
         view.backgroundColor = .ypBlack
-        
-        let appearance = UITabBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .ypBlack
-        
-        let normalAttributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.ypGray
-        ]
-        appearance.stackedLayoutAppearance.normal.titleTextAttributes = normalAttributes
-        appearance.stackedLayoutAppearance.normal.iconColor = .ypGray
-        
-        let selectedAttributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.ypWhite
-        ]
-        appearance.stackedLayoutAppearance.selected.titleTextAttributes = selectedAttributes
-        appearance.stackedLayoutAppearance.selected.iconColor = .ypWhite
-        
-        tabBar.standardAppearance = appearance
-        if #available(iOS 15.0, *) {
-            tabBar.scrollEdgeAppearance = appearance
-        }
         
         tabBar.barTintColor = .ypBlack
         tabBar.backgroundColor = .ypBlack
@@ -53,6 +31,34 @@ final class TabBarController: UITabBarController {
         tabBar.unselectedItemTintColor = .ypGray
         tabBar.isTranslucent = false
         
+        if #available(iOS 13.0, *) {
+            let appearance = UITabBarAppearance()
+            
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = .ypBlack
+            
+            appearance.shadowColor = .clear
+            appearance.shadowImage = UIImage()
+            
+            appearance.stackedLayoutAppearance.normal.iconColor = .ypGray
+            appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+                .foregroundColor: UIColor.ypGray
+            ]
+            
+            appearance.stackedLayoutAppearance.selected.iconColor = .ypWhite
+            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+                .foregroundColor: UIColor.ypWhite
+            ]
+            
+            tabBar.standardAppearance = appearance
+            
+            if #available(iOS 15.0, *) {
+                tabBar.scrollEdgeAppearance = appearance
+            }
+        } else {
+            tabBar.shadowImage = UIImage()
+            tabBar.backgroundImage = UIImage()
+        }
     }
     
     private func setupViewControllers(){

@@ -66,18 +66,15 @@ final class AuthViewController: UIViewController {
     
     @objc
     private func didTapLoginBtn(){
-        print("[AuthViewController, didTapLoginBtn]: нажата кнопка входа")
         showWebViewViewController()
     }
     
     private func showWebViewViewController() {
-        print("[AuthViewController, showWebViewViewController]: создаем WebViewViewController программно")
         let webViewViewController = WebViewViewController()
         webViewViewController.delegate = self
         let navigationController = UINavigationController(rootViewController: webViewViewController)
         navigationController.modalPresentationStyle = .fullScreen
         present(navigationController, animated: true)
-        print("[AuthViewController, showWebViewViewController]: WebViewViewController показан")
     }
     
     private func setupConstraints(){
@@ -120,7 +117,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
     
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         
-        print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: получен код авторизации: \(code)")
+        print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: получен код авторизации: \(code.prefix(5))")
         UIBlockingProgressHUD.show()
         
         oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
@@ -134,8 +131,6 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 }
                 
             case .failure(let error):
-                print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: ошибка получения токена: \(error.localizedDescription)")
-                // Показываем alert с ошибкой
                 DispatchQueue.main.async {
                     self?.showErrorAlert(error: error)
                 }
@@ -144,31 +139,23 @@ extension AuthViewController: WebViewViewControllerDelegate {
     }
     
     private func switchToTabBarController() {
-        print("[AuthViewController, switchToTabBarController]: переключаемся на TabBarController")
         
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first else {
-            print("[AuthViewController, switchToTabBarController]: ошибка - не удалось найти window")
-            return
+        let splashViewController = SplashViewController()
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            
+            UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: {
+                window.rootViewController = splashViewController
+            }, completion: { success in
+                if success {
+                    print("[AuthViewController, switchToTabBarController]: успешно переключились на SplashViewController для загрузки профиля")
+                }
+            })
         }
-        
-        let tabBarController = TabBarController()
-        
-        // ✅ Анимация перехода
-        let transition = CATransition()
-        transition.duration = 0.3
-        transition.type = .push
-        transition.subtype = .fromRight
-        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        
-        window.layer.add(transition, forKey: kCATransition)
-        window.rootViewController = tabBarController
-        
-        print("[AuthViewController, switchToTabBarController]: успешно переключились на TabBarController")
     }
     
     private func showErrorAlert(error: Error) {
-        print("[AuthViewController, showErrorAlert]: показываем alert с ошибкой")
         let alert = UIAlertController(
             title: "Что-то пошло не так",
             message: "Не удалось войти в систему",
@@ -179,8 +166,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
     }
     
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
-        print("[AuthViewController, webViewViewControllerDidCancel]: пользователь отменил авторизацию")
-        goBackToSplash()
+        navigationController?.popViewController(animated: true)
     }
     private func goBackToSplash() {
         
@@ -201,8 +187,6 @@ extension AuthViewController: WebViewViewControllerDelegate {
         
         window.layer.add(transition, forKey: kCATransition)
         window.rootViewController = splashViewController
-        
-        print("[AuthViewController, goBackToSplash]: успешно вернулись к SplashViewController")
     }
 }
 
