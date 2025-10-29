@@ -144,10 +144,8 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
         let tapPoint = recognizer.location(in: imageView)
         
         if scrollView.zoomScale > scrollView.minimumZoomScale {
-            // Если уже увеличен - возвращаем к минимальному zoom (полный обзор)
             scrollView.setZoomScale(scrollView.minimumZoomScale, animated: true)
         } else {
-            // Увеличиваем в 2 раза относительно точки тапа
             let zoomScale = min(scrollView.maximumZoomScale, 2.0)
             let zoomRect = zoomRectForScale(scale: zoomScale, center: tapPoint)
             scrollView.zoom(to: zoomRect, animated: true)
@@ -160,11 +158,9 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
         let currentScale = scrollView.zoomScale
         let targetScale = scale * currentScale
         
-        // Размер zoomRect относительно targetScale
         zoomRect.size.height = imageView.frame.size.height / targetScale
         zoomRect.size.width = imageView.frame.size.width / targetScale
         
-        // Центрируем относительно точки тапа
         zoomRect.origin.x = center.x - (zoomRect.size.width / 2.0)
         zoomRect.origin.y = center.y - (zoomRect.size.height / 2.0)
         
@@ -199,7 +195,7 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
         scrollView.contentSize = scaledImageSize
         
         scrollView.zoomScale = minScale
-        scrollView.minimumZoomScale = minScale // Минимальный zoom - чтобы полностью видно изображение
+        scrollView.minimumZoomScale = minScale
         scrollView.maximumZoomScale = 3.0
         
         centerImage()

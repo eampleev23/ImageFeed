@@ -9,7 +9,7 @@ import UIKit
 
 final class SplashViewController: UIViewController, AuthViewControllerDelegate {
     
-    private enum SplashConstants {
+    private enum Constants {
         static let logoImageName: String = "logo_of_unsplash"
     }
     
@@ -18,7 +18,7 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
     
     // MARK: - UI Elements
     private let logoImageView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(named: SplashConstants.logoImageName))
+        let imageView = UIImageView(image: UIImage(named: Constants.logoImageName))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -41,7 +41,7 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
     // MARK: - Setup Methods
     private func setupView() {
         view.backgroundColor = YPColors.black
-        view.addSubview(logoImageView) // ДОБАВЛЕНО: Добавляем imageView на view
+        view.addSubview(logoImageView)
     }
     
     private func setupConstraints() {
@@ -74,6 +74,7 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
         guard let token = OAuth2TokenStorage.shared.token else {
             print("[SplashViewController, didAuthenticate]: ошибка - токен не найден")
+            self.showErrorAlert(error: AppError.tokenValidationFailed)
             return
         }
         vc.dismiss(animated: true)
@@ -81,37 +82,101 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
     }
     
     private func fetchProfile(token: String) {
+        
         UIBlockingProgressHUD.show()
+        
         profileService.fetchProfile(
+            
             OAuth2TokenStorage.shared.token ?? "") { [weak self] (result: Result<Profile, Error>) in
+                
                 UIBlockingProgressHUD.dismiss()
+                
                 guard let self = self else {
                     print("[SplashViewController, fetchProfile]: ошибка - self освобожден")
                     return
                 }
+                
                 switch result {
+                    
                 case let .success(profile):
-                    print("[SplashViewController, fetchProfile]: профиль успешно загружен, profile.userName: \(profile.userName)")
-                    ProfileImageService.shared.fetchProfileImageURL(
-                        username: profile.userName
-                    ){ result in
-                        DispatchQueue.main.async {
-                            switch result {
-                            case .success:
-                                //                                self.switchToTabBarController()
-                                print("[SplashViewController, fetchProfile, ProfileImageService.shared.fetchProfileImageURL]: успешная загрузка аватара")
-                            case .failure(let error):
-                                print("[SplashViewController, fetchProfile, ProfileImageService.shared.fetchProfileImageURL]: ошибка загрузки аватара - \(error)")
-                                //                                self.switchToTabBarController()
-                            }
-                        }
+                    print("[SplashViewController, fetchProfile]: профиль успешно загружен, profile.userName: \(profile.userName ?? "nil")")
+                    
+                    if let username = profile.userName {
+                        self.fetchProfileImage(username: username)
+                    } else {
+                        print("[SplashViewController, fetchProfile]: username отсутствует, переходим к TabBarController без аватара")
+                        self.switchToTabBarController()
                     }
-                    self.switchToTabBarController()
-                case .failure:
-                    //TODO: sprint 11
+                    
+                case .failure (let error):
+                    print("[SplashViewController, fetchProfile, profileService.fetchProfile]: ошибка загрузки профиля - \(error)")
+                    self.handleProfileError(error)
                     break
                 }
             }
+    }
+    
+    private func fetchProfileImage(username: String) {
+        ProfileImageService.shared.fetchProfileImageURL(username: username) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    print("[SplashViewController]: успешная загрузка аватара")
+                    self?.switchToTabBarController()
+                case .failure(let error):
+                    print("[SplashViewController]: ошибка загрузки аватара - \(error)")
+                    // Показываем ошибку, но все равно переходим в приложение
+                    self?.showErrorAlert(error: error)
+                    self?.switchToTabBarController()
+                }
+            }
+        }
+    }
+    
+    private func handleProfileError(_ error: Error) {
+        let appError: AppError
+        if let existingAppError = error as? AppError {
+            appError = existingAppError
+        } else {
+            appError = AppError.profileLoadFailed
+        }
+        
+        self.showRetryAlert(error: appError) { [weak self] in
+            if let token = self?.storage.token {
+                self?.fetchProfile(token: token)
+            } else {
+                self?.showAuthViewController()
+            }
+        }
+    }
+    
+    private func showRetryAlert(error: Error, retryHandler: @escaping () -> Void) {
+        let title: String
+        let message: String
+        
+        if let appError = error as? AppError {
+            title = "Ошибка загрузки"
+            message = appError.errorDescription ?? "Не удалось загрузить данные"
+        } else {
+            title = "Ошибка"
+            message = error.localizedDescription
+        }
+        
+        let alert = UIAlertController(
+            title: title,
+            message: message,
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Повторить", style: .default) { _ in
+            retryHandler()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Выйти", style: .cancel) { [weak self] _ in
+            self?.showAuthViewController()
+        })
+        
+        present(alert, animated: true)
     }
     
     private func switchToTabBarController() {
@@ -127,5 +192,35 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
                 }
             })
         }
+    }
+    private func showErrorAlert(error: Error) {
+        let title: String
+        let message: String
+        let recoveryMessage: String?
+        
+        if let appError = error as? AppError {
+            title = "Ошибка"
+            message = appError.errorDescription ?? "Произошла ошибка"
+            recoveryMessage = appError.recoverySuggestion
+        } else {
+            title = "Что-то пошло не так"
+            message = error.localizedDescription
+            recoveryMessage = "Попробуйте еще раз"
+        }
+        
+        let fullMessage: String
+        if let recovery = recoveryMessage {
+            fullMessage = "\(message)\n\n\(recovery)"
+        } else {
+            fullMessage = message
+        }
+        
+        let alert = UIAlertController(
+            title: title,
+            message: fullMessage,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 }

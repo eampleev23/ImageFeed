@@ -10,7 +10,7 @@ import UIKit
 
 final class ImageListCell: UITableViewCell {
     
-    private enum ImageListCellConstants {
+    private enum Constants {
         static let likeImageResourse: ImageResource = .activeSVG
         static let noLikeImageResourse: ImageResource = .noActiveSVG
     }
@@ -146,8 +146,8 @@ final class ImageListCell: UITableViewCell {
     private func updateLikeButtonAppearance() {
         
         let uiImage = isLiked ?
-        UIImage(resource: ImageListCellConstants.likeImageResourse)
-        :  UIImage(resource: ImageListCellConstants.noLikeImageResourse)
+        UIImage(resource: Constants.likeImageResourse)
+        :  UIImage(resource: Constants.noLikeImageResourse)
         
         likeBtn.setImage(uiImage, for: .normal)
     }

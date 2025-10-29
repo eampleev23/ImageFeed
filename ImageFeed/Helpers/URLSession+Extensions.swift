@@ -7,13 +7,6 @@
 
 import Foundation
 
-enum NetworkError: Error {
-    case httpStatusCode(Int)
-    case urlRequestError(Error)
-    case urlSessionError
-    case decodingError(Error)
-}
-
 extension URLSession {
     func data(
         for request: URLRequest,
@@ -24,20 +17,42 @@ extension URLSession {
                 completion(result)
             }
         }
+        
         let task = dataTask(with: request, completionHandler: { data, response, error in
             if let data = data, let response = response, let statusCode = (response as? HTTPURLResponse)?.statusCode {
                 if 200 ..< 300 ~= statusCode {
                     fulfillCompletionOnTheMainThread(.success(data))
                 } else {
                     print("[dataTask]: NetworkError - код ошибки \(statusCode), URL: \(request.url?.absoluteString ?? "unknown")")
-                    fulfillCompletionOnTheMainThread(.failure(NetworkError.httpStatusCode(statusCode)))
+                    
+                    let appError: AppError
+                    switch statusCode {
+                    case 400:
+                        appError = .invalidRequest
+                    case 401:
+                        appError = .unauthorized
+                    case 403:
+                        appError = .serverError(statusCode: statusCode)
+                    case 404:
+                        appError = .serverError(statusCode: statusCode)
+                    case 429:
+                        appError = .networkError(description: "Слишком много запросов")
+                    case 500...599:
+                        appError = .serverError(statusCode: statusCode)
+                    default:
+                        appError = .serverError(statusCode: statusCode)
+                    }
+                    fulfillCompletionOnTheMainThread(.failure(appError))
                 }
             } else if let error = error {
                 print("[dataTask]: urlRequestError - \(error.localizedDescription), URL: \(request.url?.absoluteString ?? "unknown")")
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.urlRequestError(error)))
+                
+                let appError = AppError.networkError(description: error.localizedDescription)
+                fulfillCompletionOnTheMainThread(.failure(appError))
             } else {
                 print("[dataTask]: urlSessionError - неизвестная ошибка сессии, URL: \(request.url?.absoluteString ?? "unknown")")
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.urlSessionError))
+                
+                fulfillCompletionOnTheMainThread(.failure(AppError.networkError(description: "Неизвестная ошибка сессии")))
             }
         })
         return task
@@ -48,10 +63,8 @@ extension URLSession {
         completion: @escaping (Result<T, Error>) -> Void
     ) -> URLSessionTask {
         
-        // Создает декодер
         let decoder = JSONDecoder()
         
-        // Создает запрос уже через кастомный метод data
         let task = data(for: request) { (result: Result<Data, Error>) in
             switch result {
             case .success(let data):
@@ -61,7 +74,8 @@ extension URLSession {
                 } catch {
                     let dataString = String(data: data, encoding: .utf8) ?? "Нечитаемые данные"
                     print("[objectTask]: decodingError - \(error.localizedDescription), Данные: \(dataString)")
-                    completion(.failure(NetworkError.decodingError(error)))
+                    
+                    completion(.failure(AppError.parsingError))
                 }
             case .failure(let error):
                 print("[objectTask]: networkError - \(error.localizedDescription)")

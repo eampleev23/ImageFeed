@@ -9,7 +9,7 @@ import UIKit
 
 final class AuthViewController: UIViewController {
     
-    private enum AuthConstants {
+    private enum Constants {
         static let logoImageViewImageResourse: ImageResource = .logoOfUnsplash
         static let loginUIButtonText: String = "Войти"
         static let loginUIButtonFontSize: CGFloat = 17
@@ -18,6 +18,10 @@ final class AuthViewController: UIViewController {
         static let loginUIButtonTrailingAnchor: CGFloat = -16
         static let loginUIButtonHeightAnchor: CGFloat = 48
         static let loginUIButtonBottomAnchor: CGFloat = -106
+        
+        static let countOfSimbolsInConfInfToShowInLog: Int = 5
+        static let animationSpeedToChangeScreens: CGFloat = 0.3
+        
     }
     
     private let oauth2Service = OAuth2Service.shared
@@ -26,7 +30,7 @@ final class AuthViewController: UIViewController {
     // MARK: - UI Elements
     private lazy var logoImageView: UIImageView = {
         
-        let imageView = UIImageView(image: UIImage(resource: AuthConstants.logoImageViewImageResourse))
+        let imageView = UIImageView(image: UIImage(resource: Constants.logoImageViewImageResourse))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -36,12 +40,12 @@ final class AuthViewController: UIViewController {
         uiButton.tintColor = YPColors.white
         uiButton.translatesAutoresizingMaskIntoConstraints = false
         
-        uiButton.setTitle(AuthConstants.loginUIButtonText, for: .normal)
-        uiButton.titleLabel?.font = UIFont.systemFont(ofSize: AuthConstants.loginUIButtonFontSize, weight: .bold)
+        uiButton.setTitle(Constants.loginUIButtonText, for: .normal)
+        uiButton.titleLabel?.font = UIFont.systemFont(ofSize: Constants.loginUIButtonFontSize, weight: .bold)
         uiButton.setTitleColor(YPColors.black, for: .normal)
         
         uiButton.backgroundColor = YPColors.white
-        uiButton.layer.cornerRadius = AuthConstants.loginUIButtonCornerRadius
+        uiButton.layer.cornerRadius = Constants.loginUIButtonCornerRadius
         uiButton.layer.masksToBounds = true
         
         return uiButton
@@ -90,18 +94,18 @@ final class AuthViewController: UIViewController {
             ),
             loginUIButton.leadingAnchor.constraint(
                 equalTo: view.leadingAnchor,
-                constant: AuthConstants.loginUIButtonLeadingAnchor
+                constant: Constants.loginUIButtonLeadingAnchor
             ),
             loginUIButton.trailingAnchor.constraint(
                 equalTo: view.trailingAnchor,
-                constant: AuthConstants.loginUIButtonTrailingAnchor
+                constant: Constants.loginUIButtonTrailingAnchor
             ),
             loginUIButton.heightAnchor.constraint(
-                equalToConstant: AuthConstants.loginUIButtonHeightAnchor
+                equalToConstant: Constants.loginUIButtonHeightAnchor
             ),
             loginUIButton.bottomAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.bottomAnchor,
-                constant: AuthConstants.loginUIButtonBottomAnchor
+                constant: Constants.loginUIButtonBottomAnchor
             ),
         ])
     }
@@ -115,22 +119,25 @@ extension AuthViewController: WebViewViewControllerDelegate {
     
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         
-        print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: получен код авторизации: \(code.prefix(5))")
+        print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: получен код авторизации: \(code.prefix(Constants.countOfSimbolsInConfInfToShowInLog))..")
+        
         UIBlockingProgressHUD.show()
         
         oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
+            
             UIBlockingProgressHUD.dismiss()
             
+            guard let self else { return }
             switch result {
             case .success(let token):
-                print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: успешно получен токен: \(token.prefix(10))...")
+                print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: успешно получен токен: \(token.prefix(Constants.countOfSimbolsInConfInfToShowInLog))...")
                 DispatchQueue.main.async {
-                    self?.switchToTabBarController()
+                    self.switchToTabBarController()
                 }
                 
             case .failure(let error):
                 DispatchQueue.main.async {
-                    self?.showErrorAlert(error: error)
+                    self.showErrorAlert(error: error)
                 }
             }
         }
@@ -143,7 +150,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first {
             
-            UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: {
+            UIView.transition(with: window, duration: Constants.animationSpeedToChangeScreens, options: .transitionCrossDissolve, animations: {
                 window.rootViewController = splashViewController
             }, completion: { success in
                 if success {
@@ -154,9 +161,32 @@ extension AuthViewController: WebViewViewControllerDelegate {
     }
     
     private func showErrorAlert(error: Error) {
+        
+        let title: String
+        let message: String
+        let recoveryMessage: String?
+        
+        if let appError = error as? AppError {
+            title = "Ошибка авторизации"
+            message = appError.errorDescription ?? "Не удалось войти в систему"
+            recoveryMessage = appError.recoverySuggestion
+        } else {
+            title = "Что-то пошло не так"
+            message = "Не удалось войти в систему"
+            recoveryMessage = "Попробуйте еще раз"
+        }
+        
+        let fullMessage: String
+        
+        if let recovery = recoveryMessage {
+            fullMessage = "\(message)\n\n\(recovery)"
+        } else {
+            fullMessage = message
+        }
+        
         let alert = UIAlertController(
-            title: "Что-то пошло не так(",
-            message: "Не удалось войти в систему",
+            title: title,
+            message: fullMessage,
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "OK", style: .default))
@@ -176,9 +206,8 @@ extension AuthViewController: WebViewViewControllerDelegate {
         
         let splashViewController = SplashViewController()
         
-        // Анимация перехода слева
         let transition = CATransition()
-        transition.duration = 0.3
+        transition.duration = Constants.animationSpeedToChangeScreens
         transition.type = .push
         transition.subtype = .fromLeft
         transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)

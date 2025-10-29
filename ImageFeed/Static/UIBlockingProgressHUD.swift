@@ -27,23 +27,20 @@ final class UIBlockingProgressHUD {
             width: containerSize,
             height: containerSize
         ))
-        containerView.backgroundColor = .ypWhite // Белый фон только для прелоадера
-        containerView.layer.cornerRadius = 16 // Закругленные углы
+        containerView.backgroundColor = .ypWhite
+        containerView.layer.cornerRadius = 16
         containerView.layer.masksToBounds = true
         
-        // Создаем анимацию Lottie
         let animationView = LottieAnimationView(name: "loading_gray")
         animationView.frame = CGRect(x: 0, y: 0, width: 25, height: 25)
         animationView.center = CGPoint(x: containerSize / 2, y: containerSize / 2)
         animationView.loopMode = .loop
         animationView.contentMode = .scaleAspectFit
         
-        // Добавляем элементы в иерархию
         containerView.addSubview(animationView)
         overlay.addSubview(containerView)
         window.addSubview(overlay)
         
-        // Сохраняем ссылки
         self.overlayView = overlay
         self.containerView = containerView
         self.animationView = animationView
