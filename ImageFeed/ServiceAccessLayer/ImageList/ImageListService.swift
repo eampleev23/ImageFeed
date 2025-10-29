@@ -90,7 +90,7 @@ final class ImageListService {
             size: size,
             createdAt: createdAt,
             welcomeDescription: result.description,
-            thumbImageURL: result.urls.thumb,
+            thumbImageURL: result.urls.regular,
             largeImageURL: result.urls.full,
             isLiked: result.likedByUser
         )
