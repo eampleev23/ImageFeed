@@ -48,7 +48,7 @@ final class WebViewViewController: UIViewController, WKNavigationDelegate {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .ypBlack
         
         // Добавляем progressView если контроллер создан
         if let progressView = progressController?.getProgressView() {

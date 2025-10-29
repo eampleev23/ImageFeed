@@ -21,8 +21,9 @@ final class WebViewProgressController: NSObject {
     private let progressView: UIProgressView
     private weak var webView: WKWebView?
     
-    private var isObserving = false
+    private var estimatedProgressObservation: NSKeyValueObservation?
     
+    private var isObserving = false
     private var progressTimer: Timer?
     private var targetProgress: Float = 0.0
     private var isLoadCompleted = false
@@ -39,28 +40,31 @@ final class WebViewProgressController: NSObject {
         setupProgressView()
     }
     
-    // MARK: - Public Methods
+    deinit {
+        stopObserving()
+    }
+    
+    // MARK: - KVO
     func startObserving() {
         guard !isObserving, let webView = webView else { return }
-        
-        webView.addObserver(
-            self,
-            forKeyPath: #keyPath(WKWebView.estimatedProgress),
-            options: .new,
-            context: nil
+        // ЗАМЕНА: Используем новый API для наблюдения
+        estimatedProgressObservation = webView.observe(
+            \.estimatedProgress,
+             options: [.new],
+             changeHandler: { [weak self] webView, change in
+                 guard let self = self else { return }
+                 let newProgress = Float(webView.estimatedProgress)
+                 self.updateProgressSmoothly(to: newProgress)
+             }
         )
         isObserving = true
         startFakeProgress()
     }
     
     func stopObserving() {
-        guard isObserving, let webView = webView else { return }
+        guard isObserving, webView != nil else { return }
         
-        webView.removeObserver(
-            self,
-            forKeyPath: #keyPath(WKWebView.estimatedProgress),
-            context: nil
-        )
+        estimatedProgressObservation = nil
         isObserving = false
         invalidateTimers()
     }
@@ -96,8 +100,6 @@ final class WebViewProgressController: NSObject {
     }
     
     private func updateFakeProgress() {
-        //        guard let self = self else { return }
-        
         if self.fakeProgress < WVPCConstants.fakeProgressTarget {
             // Определяем шаг прогресса
             let step: Float = self.fakeProgress > 0.6 ?
@@ -185,22 +187,5 @@ final class WebViewProgressController: NSObject {
         progressTimer = nil
         fakeProgressTimer?.invalidate()
         fakeProgressTimer = nil
-    }
-    
-    // MARK: - KVO
-    override func observeValue(
-        forKeyPath keyPath: String?,
-        of object: Any?,
-        change: [NSKeyValueChangeKey: Any]?,
-        context: UnsafeMutableRawPointer?
-    ) {
-        if keyPath == #keyPath(WKWebView.estimatedProgress) {
-            let newProgress = Float(webView?.estimatedProgress ?? 0)
-            updateProgressSmoothly(to: newProgress)
-        }
-    }
-    
-    deinit {
-        stopObserving()
     }
 }

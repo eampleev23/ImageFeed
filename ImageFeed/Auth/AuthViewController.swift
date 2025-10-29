@@ -10,34 +10,31 @@ import UIKit
 final class AuthViewController: UIViewController {
     
     private enum AuthConstants {
-        static let translatesAutoresizingMaskIntoConstraints: Bool = false
-        static let logoImageViewImageName: String = "logo_of_unsplash"
+        static let logoImageViewImageResourse: ImageResource = .logoOfUnsplash
         static let loginUIButtonText: String = "Войти"
         static let loginUIButtonFontSize: CGFloat = 17
         static let loginUIButtonCornerRadius: CGFloat = 16
-        static let loginUIButtonMasksToBounds: Bool = true
         static let loginUIButtonLeadingAnchor: CGFloat = 16
         static let loginUIButtonTrailingAnchor: CGFloat = -16
         static let loginUIButtonHeightAnchor: CGFloat = 48
         static let loginUIButtonBottomAnchor: CGFloat = -106
-        static let segueIDFromStoryBoard: String = "ShowWebView"
     }
     
-    private let oauthToService = OAuth2Service.shared
+    private let oauth2Service = OAuth2Service.shared
     weak var delegate: AuthViewControllerDelegate?
     
     // MARK: - UI Elements
-    private let logoImageView: UIImageView = {
+    private lazy var logoImageView: UIImageView = {
         
-        let imageView = UIImageView(image: UIImage(named: AuthConstants.logoImageViewImageName))
-        imageView.translatesAutoresizingMaskIntoConstraints = AuthConstants.translatesAutoresizingMaskIntoConstraints
+        let imageView = UIImageView(image: UIImage(resource: AuthConstants.logoImageViewImageResourse))
+        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
-    private let loginUIButton: UIButton = {
+    private lazy var loginUIButton: UIButton = {
         let uiButton = UIButton()
         uiButton.tintColor = YPColors.white
-        uiButton.translatesAutoresizingMaskIntoConstraints = AuthConstants.translatesAutoresizingMaskIntoConstraints
+        uiButton.translatesAutoresizingMaskIntoConstraints = false
         
         uiButton.setTitle(AuthConstants.loginUIButtonText, for: .normal)
         uiButton.titleLabel?.font = UIFont.systemFont(ofSize: AuthConstants.loginUIButtonFontSize, weight: .bold)
@@ -45,7 +42,7 @@ final class AuthViewController: UIViewController {
         
         uiButton.backgroundColor = YPColors.white
         uiButton.layer.cornerRadius = AuthConstants.loginUIButtonCornerRadius
-        uiButton.layer.masksToBounds = AuthConstants.loginUIButtonMasksToBounds
+        uiButton.layer.masksToBounds = true
         
         return uiButton
     }()
@@ -58,19 +55,6 @@ final class AuthViewController: UIViewController {
         setupButtonTarget()
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == AuthConstants.segueIDFromStoryBoard {
-            guard
-                let webViewViewController = segue.destination as? WebViewViewController
-            else {
-                fatalError("Failed to prepare for \(AuthConstants.segueIDFromStoryBoard)")
-            }
-            webViewViewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
-        }
-    }
-    
     private func setupView(){
         
         view.backgroundColor = YPColors.black
@@ -80,7 +64,15 @@ final class AuthViewController: UIViewController {
     
     @objc
     private func didTapLoginBtn(){
-        performSegue(withIdentifier: AuthConstants.segueIDFromStoryBoard, sender: self)
+        showWebViewViewController()
+    }
+    
+    private func showWebViewViewController() {
+        let webViewViewController = WebViewViewController()
+        webViewViewController.delegate = self
+        let navigationController = UINavigationController(rootViewController: webViewViewController)
+        navigationController.modalPresentationStyle = .fullScreen
+        present(navigationController, animated: true)
     }
     
     private func setupConstraints(){
@@ -120,28 +112,50 @@ final class AuthViewController: UIViewController {
 }
 // MARK: - WebViewViewControllerDelegate
 extension AuthViewController: WebViewViewControllerDelegate {
+    
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         
-        print("Authorization code received: \(code)")
-        oauthToService.fetchOAuthToken(code: code) { [weak self] result in
+        print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: получен код авторизации: \(code.prefix(5))")
+        UIBlockingProgressHUD.show()
+        
+        oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
             
             switch result {
             case .success(let token):
-                print("Successfully received token: \(token)")
-                // Токен получен и сохранен, можно переходить к следующему экрану
-                self?.delegate?.didAuthenticate(self ?? AuthViewController())
+                print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: успешно получен токен: \(token.prefix(10))...")
+                DispatchQueue.main.async {
+                    self?.switchToTabBarController()
+                }
                 
             case .failure(let error):
-                print("Failed to get token: \(error.localizedDescription)")
-                // Показываем alert с ошибкой
-                self?.showErrorAlert(error: error)
+                DispatchQueue.main.async {
+                    self?.showErrorAlert(error: error)
+                }
             }
+        }
+    }
+    
+    private func switchToTabBarController() {
+        
+        let splashViewController = SplashViewController()
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            
+            UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: {
+                window.rootViewController = splashViewController
+            }, completion: { success in
+                if success {
+                    print("[AuthViewController, switchToTabBarController]: успешно переключились на SplashViewController для загрузки профиля")
+                }
+            })
         }
     }
     
     private func showErrorAlert(error: Error) {
         let alert = UIAlertController(
-            title: "Что-то пошло не так",
+            title: "Что-то пошло не так(",
             message: "Не удалось войти в систему",
             preferredStyle: .alert
         )
@@ -151,6 +165,26 @@ extension AuthViewController: WebViewViewControllerDelegate {
     
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
         navigationController?.popViewController(animated: true)
+    }
+    private func goBackToSplash() {
+        
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else {
+            print("[AuthViewController, goBackToSplash]: ошибка - не удалось найти window")
+            return
+        }
+        
+        let splashViewController = SplashViewController()
+        
+        // Анимация перехода слева
+        let transition = CATransition()
+        transition.duration = 0.3
+        transition.type = .push
+        transition.subtype = .fromLeft
+        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        
+        window.layer.add(transition, forKey: kCATransition)
+        window.rootViewController = splashViewController
     }
 }
 
