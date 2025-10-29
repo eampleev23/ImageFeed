@@ -9,7 +9,7 @@ import UIKit
 
 final class AuthViewController: UIViewController {
     
-    private enum AuthConstants {
+    private enum Constants {
         static let logoImageViewImageResourse: ImageResource = .logoOfUnsplash
         static let loginUIButtonText: String = "Войти"
         static let loginUIButtonFontSize: CGFloat = 17
@@ -26,7 +26,7 @@ final class AuthViewController: UIViewController {
     // MARK: - UI Elements
     private lazy var logoImageView: UIImageView = {
         
-        let imageView = UIImageView(image: UIImage(resource: AuthConstants.logoImageViewImageResourse))
+        let imageView = UIImageView(image: UIImage(resource: Constants.logoImageViewImageResourse))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -36,12 +36,12 @@ final class AuthViewController: UIViewController {
         uiButton.tintColor = YPColors.white
         uiButton.translatesAutoresizingMaskIntoConstraints = false
         
-        uiButton.setTitle(AuthConstants.loginUIButtonText, for: .normal)
-        uiButton.titleLabel?.font = UIFont.systemFont(ofSize: AuthConstants.loginUIButtonFontSize, weight: .bold)
+        uiButton.setTitle(Constants.loginUIButtonText, for: .normal)
+        uiButton.titleLabel?.font = UIFont.systemFont(ofSize: Constants.loginUIButtonFontSize, weight: .bold)
         uiButton.setTitleColor(YPColors.black, for: .normal)
         
         uiButton.backgroundColor = YPColors.white
-        uiButton.layer.cornerRadius = AuthConstants.loginUIButtonCornerRadius
+        uiButton.layer.cornerRadius = Constants.loginUIButtonCornerRadius
         uiButton.layer.masksToBounds = true
         
         return uiButton
@@ -90,18 +90,18 @@ final class AuthViewController: UIViewController {
             ),
             loginUIButton.leadingAnchor.constraint(
                 equalTo: view.leadingAnchor,
-                constant: AuthConstants.loginUIButtonLeadingAnchor
+                constant: Constants.loginUIButtonLeadingAnchor
             ),
             loginUIButton.trailingAnchor.constraint(
                 equalTo: view.trailingAnchor,
-                constant: AuthConstants.loginUIButtonTrailingAnchor
+                constant: Constants.loginUIButtonTrailingAnchor
             ),
             loginUIButton.heightAnchor.constraint(
-                equalToConstant: AuthConstants.loginUIButtonHeightAnchor
+                equalToConstant: Constants.loginUIButtonHeightAnchor
             ),
             loginUIButton.bottomAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.bottomAnchor,
-                constant: AuthConstants.loginUIButtonBottomAnchor
+                constant: Constants.loginUIButtonBottomAnchor
             ),
         ])
     }
@@ -116,21 +116,24 @@ extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         
         print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: получен код авторизации: \(code.prefix(5))")
+        
         UIBlockingProgressHUD.show()
         
         oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
+            
             UIBlockingProgressHUD.dismiss()
             
+            guard let self else { return }
             switch result {
             case .success(let token):
                 print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: успешно получен токен: \(token.prefix(10))...")
                 DispatchQueue.main.async {
-                    self?.switchToTabBarController()
+                    self.switchToTabBarController()
                 }
                 
             case .failure(let error):
                 DispatchQueue.main.async {
-                    self?.showErrorAlert(error: error)
+                    self.showErrorAlert(error: error)
                 }
             }
         }

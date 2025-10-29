@@ -4,7 +4,7 @@
 final class WebViewViewController: UIViewController, WKNavigationDelegate {
     
     // MARK: - Constants
-    private enum  WVVCConstants {
+    private enum  Constants {
         static let unsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
         static let backButtonLeftMargin: CGFloat = -16
         static let backButtonImageName = "nav_back_button"
@@ -80,7 +80,7 @@ final class WebViewViewController: UIViewController, WKNavigationDelegate {
     
     private func setupNavigationBar() {
         let backButton = UIBarButtonItem(
-            image: UIImage(named: WVVCConstants.backButtonImageName),
+            image: UIImage(named: Constants.backButtonImageName),
             style: .plain,
             target: self,
             action: #selector(didTapBackButton)
@@ -88,7 +88,7 @@ final class WebViewViewController: UIViewController, WKNavigationDelegate {
         
         backButton.imageInsets = UIEdgeInsets(
             top: 0,
-            left: WVVCConstants.backButtonLeftMargin,
+            left: Constants.backButtonLeftMargin,
             bottom: 0,
             right: 0
         )
@@ -116,7 +116,7 @@ final class WebViewViewController: UIViewController, WKNavigationDelegate {
     // MARK: - Auth
     private func loadAuthView() {
         guard var urlComponents = URLComponents(
-            string: WVVCConstants.unsplashAuthorizeURLString
+            string: Constants.unsplashAuthorizeURLString
         ) else { return }
         
         urlComponents.queryItems = [

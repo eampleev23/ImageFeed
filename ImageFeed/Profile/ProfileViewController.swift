@@ -8,24 +8,24 @@
 import Kingfisher
 import UIKit
 
-private enum ProfileLayotConstants {
-    
-    static let globalLeadingAndRightAnchor: CGFloat = 16
-    static let globalTopAnchor: CGFloat = 8
-    static let globalOneLineUILabelNumberOfLines: Int = 1
-    static let globalFontSizeUILabelStandart: CGFloat = 13
-    
-    static let profileImageViewTopAnchor: CGFloat = 32
-    static let profileImageViewHeightAndWidth: CGFloat = 70
-    static let profileImageViewCornerRadius: CGFloat = 35
-    
-    static let fullNameUILabelFontSize: CGFloat = 23
-    
-    static let logoutUIButtonRightAnchor: CGFloat = -16
-    static let logoutUIButtonTopAnchor: CGFloat = 45
-}
-
 final class ProfileViewController: UIViewController {
+    
+    private enum Constants {
+        
+        static let globalLeadingAndRightAnchor: CGFloat = 16
+        static let globalTopAnchor: CGFloat = 8
+        static let globalOneLineUILabelNumberOfLines: Int = 1
+        static let globalFontSizeUILabelStandart: CGFloat = 13
+        
+        static let profileImageViewTopAnchor: CGFloat = 32
+        static let profileImageViewHeightAndWidth: CGFloat = 70
+        static let profileImageViewCornerRadius: CGFloat = 35
+        
+        static let fullNameUILabelFontSize: CGFloat = 23
+        
+        static let logoutUIButtonRightAnchor: CGFloat = -16
+        static let logoutUIButtonTopAnchor: CGFloat = 45
+    }
     
     // MARK: - UI Elements
     private lazy var profileImageView: UIImageView = {
@@ -39,9 +39,9 @@ final class ProfileViewController: UIViewController {
         let labelView = UILabel()
         labelView.text = ""
         labelView.translatesAutoresizingMaskIntoConstraints = false
-        labelView.font = UIFont.systemFont(ofSize: ProfileLayotConstants.fullNameUILabelFontSize, weight: .bold)
+        labelView.font = UIFont.systemFont(ofSize: Constants.fullNameUILabelFontSize, weight: .bold)
         labelView.textColor = YPColors.white
-        labelView.numberOfLines = ProfileLayotConstants.globalOneLineUILabelNumberOfLines
+        labelView.numberOfLines = Constants.globalOneLineUILabelNumberOfLines
         return labelView
     }()
     
@@ -49,9 +49,9 @@ final class ProfileViewController: UIViewController {
         let labelView = UILabel()
         labelView.text = ""
         labelView.translatesAutoresizingMaskIntoConstraints = false
-        labelView.font = UIFont.systemFont(ofSize: ProfileLayotConstants.globalFontSizeUILabelStandart, weight: .regular)
+        labelView.font = UIFont.systemFont(ofSize: Constants.globalFontSizeUILabelStandart, weight: .regular)
         labelView.textColor = YPColors.gray
-        labelView.numberOfLines = ProfileLayotConstants.globalOneLineUILabelNumberOfLines
+        labelView.numberOfLines = Constants.globalOneLineUILabelNumberOfLines
         return labelView
     }()
     
@@ -59,9 +59,9 @@ final class ProfileViewController: UIViewController {
         let labelView = UILabel()
         labelView.text = ""
         labelView.translatesAutoresizingMaskIntoConstraints = false
-        labelView.font = UIFont.systemFont(ofSize: ProfileLayotConstants.globalFontSizeUILabelStandart, weight: .regular)
+        labelView.font = UIFont.systemFont(ofSize: Constants.globalFontSizeUILabelStandart, weight: .regular)
         labelView.textColor = YPColors.white
-        labelView.numberOfLines = ProfileLayotConstants.globalOneLineUILabelNumberOfLines
+        labelView.numberOfLines = Constants.globalOneLineUILabelNumberOfLines
         return labelView
     }()
     
@@ -122,7 +122,7 @@ final class ProfileViewController: UIViewController {
     
     private func setupView(){
         view.backgroundColor = YPColors.black
-        profileImageView.layer.cornerRadius = ProfileLayotConstants.profileImageViewCornerRadius
+        profileImageView.layer.cornerRadius = Constants.profileImageViewCornerRadius
         profileImageView.clipsToBounds = true
         view.addSubview(profileImageView)
         view.addSubview(fullNameUILabelView)
@@ -158,31 +158,25 @@ final class ProfileViewController: UIViewController {
     private func performLogout() {
         OAuth2TokenStorage.shared.removeToken()
         
-        // 2. Очищаем данные профиля
         ProfileService.shared.cleanProfile()
         ProfileImageService.shared.cleanAvatarURL()
         
-        // 3. Очищаем кеш изображений Kingfisher
         KingfisherManager.shared.cache.clearMemoryCache()
         KingfisherManager.shared.cache.clearDiskCache()
         
-        // 4. Переключаемся на SplashViewController
         switchToSplashViewController()
     }
     
     private func switchToSplashViewController(){
         
-        // Получаем активную window scene
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = windowScene.windows.first else {
             assertionFailure("Invalid window configuration")
             return
         }
         
-        // Создаем экземпляр нужного контроллера из Storyboard
         let splashViewController = SplashViewController()
         
-        // Установим в `rootViewController` полученный контроллер
         window.rootViewController = splashViewController
     }
     
@@ -190,49 +184,49 @@ final class ProfileViewController: UIViewController {
         NSLayoutConstraint.activate([
             profileImageView.leadingAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.leadingAnchor,
-                constant: ProfileLayotConstants.globalLeadingAndRightAnchor
+                constant: Constants.globalLeadingAndRightAnchor
             ),
             profileImageView.topAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.topAnchor,
-                constant: ProfileLayotConstants.profileImageViewTopAnchor
+                constant: Constants.profileImageViewTopAnchor
             ),
             profileImageView.widthAnchor.constraint(
-                equalToConstant: ProfileLayotConstants.profileImageViewHeightAndWidth
+                equalToConstant: Constants.profileImageViewHeightAndWidth
             ),
             profileImageView.heightAnchor.constraint(
-                equalToConstant: ProfileLayotConstants.profileImageViewHeightAndWidth
+                equalToConstant: Constants.profileImageViewHeightAndWidth
             ),
             fullNameUILabelView.leadingAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.leadingAnchor,
-                constant: ProfileLayotConstants.globalLeadingAndRightAnchor
+                constant: Constants.globalLeadingAndRightAnchor
             ),
             fullNameUILabelView.topAnchor.constraint(
                 equalTo: profileImageView.bottomAnchor,
-                constant: ProfileLayotConstants.globalTopAnchor
+                constant: Constants.globalTopAnchor
             ),
             nicknameUILabelView.leadingAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.leadingAnchor,
-                constant: ProfileLayotConstants.globalLeadingAndRightAnchor
+                constant: Constants.globalLeadingAndRightAnchor
             ),
             nicknameUILabelView.topAnchor.constraint(
                 equalTo: fullNameUILabelView.bottomAnchor,
-                constant: ProfileLayotConstants.globalTopAnchor
+                constant: Constants.globalTopAnchor
             ),
             bioUILabelView.leadingAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.leadingAnchor,
-                constant: ProfileLayotConstants.globalLeadingAndRightAnchor
+                constant: Constants.globalLeadingAndRightAnchor
             ),
             bioUILabelView.topAnchor.constraint(
                 equalTo: nicknameUILabelView.bottomAnchor,
-                constant: ProfileLayotConstants.globalTopAnchor
+                constant: Constants.globalTopAnchor
             ),
             logoutUIButton.rightAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.rightAnchor,
-                constant: ProfileLayotConstants.logoutUIButtonRightAnchor
+                constant: Constants.logoutUIButtonRightAnchor
             ),
             logoutUIButton.topAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.topAnchor,
-                constant: ProfileLayotConstants.logoutUIButtonTopAnchor
+                constant: Constants.logoutUIButtonTopAnchor
             )
         ])
     }

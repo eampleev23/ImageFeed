@@ -9,7 +9,7 @@ import UIKit
 
 final class ImageListViewController: UIViewController {
     
-    private enum ImageListConstants {
+    private enum Constants {
         static let photosNames: [String] = Array(0..<20).map{ "\($0)" }
         static let defaultCellHeight: CGFloat = 200
     }
@@ -22,7 +22,7 @@ final class ImageListViewController: UIViewController {
         tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
         tableView.showsVerticalScrollIndicator = false
         tableView.showsHorizontalScrollIndicator = false
-        tableView.rowHeight = ImageListConstants.defaultCellHeight
+        tableView.rowHeight = Constants.defaultCellHeight
         tableView.register(ImageListCell.self, forCellReuseIdentifier: ImageListCell.reuseIdentifier)
         tableView.delegate = self
         tableView.dataSource = self
@@ -61,7 +61,7 @@ final class ImageListViewController: UIViewController {
     
     private func showSingleImageViewController(for indexPath: IndexPath) {
         let singleImageVC = SingleImageViewController()
-        let image = UIImage(named: ImageListConstants.photosNames[indexPath.row])
+        let image = UIImage(named: Constants.photosNames[indexPath.row])
         singleImageVC.image = image
         singleImageVC.modalPresentationStyle = .fullScreen
         present(singleImageVC, animated: true)
@@ -69,7 +69,7 @@ final class ImageListViewController: UIViewController {
     
     private func configCell(for cell: ImageListCell, with indexPath: IndexPath, isLiked: Bool ) {
         
-        let imageName = ImageListConstants.photosNames[indexPath.row]
+        let imageName = Constants.photosNames[indexPath.row]
         cell.isLiked = isLiked
         
         if UIImage(named: imageName) != nil {
@@ -98,7 +98,7 @@ extension ImageListViewController: UITableViewDelegate {
             return cacheHeight
         }
         
-        let imageName = ImageListConstants.photosNames[indexPath.row]
+        let imageName = Constants.photosNames[indexPath.row]
         let image = UIImage(named: imageName)
         
         let imageViewHeight: CGFloat
@@ -111,7 +111,7 @@ extension ImageListViewController: UITableViewDelegate {
             let aspectRatio = image.size.height / image.size.width
             imageViewHeight = availableWidth * aspectRatio
         } else {
-            imageViewHeight = ImageListConstants.defaultCellHeight
+            imageViewHeight = Constants.defaultCellHeight
         }
         
         let verticalPadding: CGFloat = 4
@@ -125,7 +125,7 @@ extension ImageListViewController: UITableViewDelegate {
 extension ImageListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let count = ImageListConstants.photosNames.count
+        let count = Constants.photosNames.count
         return count
     }
     

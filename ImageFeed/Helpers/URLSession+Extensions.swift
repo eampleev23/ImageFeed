@@ -48,10 +48,8 @@ extension URLSession {
         completion: @escaping (Result<T, Error>) -> Void
     ) -> URLSessionTask {
         
-        // Создает декодер
         let decoder = JSONDecoder()
         
-        // Создает запрос уже через кастомный метод data
         let task = data(for: request) { (result: Result<Data, Error>) in
             switch result {
             case .success(let data):

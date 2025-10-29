@@ -11,7 +11,6 @@ enum AppConstants {
     static let defaultBaseURL = URL(string: "https://api.unsplash.com")!
     static let authBaseURL = URL(string: "https://unsplash.com")!
     
-    // OAuth параметры
     static let accessKey = "X-1eXvB7L_d_xxtcNznixBqMP1iAY1_5uqxsowou_Ps"
     static let secretKey = "atBFyx3l0uQtulX81FccgPgSRT1StNUgX7gIBTvtIzQ"
     static let redirectURI = "urn:ietf:wg:oauth:2.0:oob"

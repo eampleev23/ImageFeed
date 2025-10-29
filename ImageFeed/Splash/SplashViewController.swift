@@ -9,7 +9,7 @@ import UIKit
 
 final class SplashViewController: UIViewController, AuthViewControllerDelegate {
     
-    private enum SplashConstants {
+    private enum Constants {
         static let logoImageName: String = "logo_of_unsplash"
     }
     
@@ -18,7 +18,7 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
     
     // MARK: - UI Elements
     private let logoImageView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(named: SplashConstants.logoImageName))
+        let imageView = UIImageView(image: UIImage(named: Constants.logoImageName))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -98,17 +98,15 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
                         DispatchQueue.main.async {
                             switch result {
                             case .success:
-                                //                                self.switchToTabBarController()
                                 print("[SplashViewController, fetchProfile, ProfileImageService.shared.fetchProfileImageURL]: успешная загрузка аватара")
                             case .failure(let error):
                                 print("[SplashViewController, fetchProfile, ProfileImageService.shared.fetchProfileImageURL]: ошибка загрузки аватара - \(error)")
-                                //                                self.switchToTabBarController()
                             }
                         }
                     }
                     self.switchToTabBarController()
-                case .failure:
-                    //TODO: sprint 11
+                case .failure (let error):
+                    print("[SplashViewController, fetchProfile, profileService.fetchProfile]: ошибка загрузки профиля - \(error)")
                     break
                 }
             }

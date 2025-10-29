@@ -5,7 +5,7 @@ import WebKit
 final class WebViewProgressController: NSObject {
     
     // MARK: - Constants
-    private enum WVPCConstants {
+    private enum Constants {
         static let progressTintColor = UIColor(red: 26/255, green: 27/255, blue: 34/255, alpha: 1.0)
         static let trackTintColor = UIColor.clear
         static let height: CGFloat = 2
@@ -75,8 +75,8 @@ final class WebViewProgressController: NSObject {
     
     // MARK: - Private Methods
     private func setupProgressView() {
-        progressView.progressTintColor = WVPCConstants.progressTintColor
-        progressView.trackTintColor = WVPCConstants.trackTintColor
+        progressView.progressTintColor = Constants.progressTintColor
+        progressView.trackTintColor = Constants.trackTintColor
         progressView.progress = 0.0
         progressView.alpha = 1.0
     }
@@ -92,7 +92,7 @@ final class WebViewProgressController: NSObject {
         
         
         fakeProgressTimer = Timer.scheduledTimer(
-            withTimeInterval: WVPCConstants.fakeProgressInterval,
+            withTimeInterval: Constants.fakeProgressInterval,
             repeats: true
         ) { [weak self] _ in
             self?.updateFakeProgress()
@@ -100,11 +100,11 @@ final class WebViewProgressController: NSObject {
     }
     
     private func updateFakeProgress() {
-        if self.fakeProgress < WVPCConstants.fakeProgressTarget {
+        if self.fakeProgress < Constants.fakeProgressTarget {
             // Определяем шаг прогресса
             let step: Float = self.fakeProgress > 0.6 ?
-            WVPCConstants.fakeProgressSlowStep :
-            WVPCConstants.fakeProgressStep
+            Constants.fakeProgressSlowStep :
+            Constants.fakeProgressStep
             
             self.fakeProgress += step
             let currentProgress = max(self.progressView.progress, self.fakeProgress)
@@ -148,7 +148,7 @@ final class WebViewProgressController: NSObject {
         progressTimer?.invalidate()
         
         progressTimer = Timer.scheduledTimer(
-            withTimeInterval: WVPCConstants.smoothProgressInterval,
+            withTimeInterval: Constants.smoothProgressInterval,
             repeats: true
         ) { [weak self] _ in
             self?.updateSmoothProgress()
@@ -174,7 +174,7 @@ final class WebViewProgressController: NSObject {
     }
     
     private func hideProgressView() {
-        UIView.animate(withDuration: WVPCConstants.animationDuration) { [weak self] in
+        UIView.animate(withDuration: Constants.animationDuration) { [weak self] in
             self?.progressView.alpha = 0.0
         } completion: { [weak self] _ in
             self?.progressView.setProgress(0.0, animated: false)
