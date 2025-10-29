@@ -18,6 +18,10 @@ final class AuthViewController: UIViewController {
         static let loginUIButtonTrailingAnchor: CGFloat = -16
         static let loginUIButtonHeightAnchor: CGFloat = 48
         static let loginUIButtonBottomAnchor: CGFloat = -106
+        
+        static let countOfSimbolsInConfInfToShowInLog: Int = 5
+        static let animationSpeedToChangeScreens: CGFloat = 0.3
+        
     }
     
     private let oauth2Service = OAuth2Service.shared
@@ -115,7 +119,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
     
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         
-        print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: получен код авторизации: \(code.prefix(5))..")
+        print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: получен код авторизации: \(code.prefix(Constants.countOfSimbolsInConfInfToShowInLog))..")
         
         UIBlockingProgressHUD.show()
         
@@ -126,7 +130,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
             guard let self else { return }
             switch result {
             case .success(let token):
-                print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: успешно получен токен: \(token.prefix(10))...")
+                print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: успешно получен токен: \(token.prefix(Constants.countOfSimbolsInConfInfToShowInLog))...")
                 DispatchQueue.main.async {
                     self.switchToTabBarController()
                 }
@@ -146,7 +150,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first {
             
-            UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: {
+            UIView.transition(with: window, duration: Constants.animationSpeedToChangeScreens, options: .transitionCrossDissolve, animations: {
                 window.rootViewController = splashViewController
             }, completion: { success in
                 if success {
@@ -203,7 +207,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
         let splashViewController = SplashViewController()
         
         let transition = CATransition()
-        transition.duration = 0.3
+        transition.duration = Constants.animationSpeedToChangeScreens
         transition.type = .push
         transition.subtype = .fromLeft
         transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)

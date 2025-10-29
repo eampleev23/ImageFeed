@@ -31,21 +31,14 @@ final class ProfileService {
             switch result {
             case .success(let profileResult):
                 
-                guard !profileResult.username.isEmpty else {
-                    print("[ProfileService]: invalidProfileData - получены пустые данные username")
-                    DispatchQueue.main.async {
-                        completion(.failure(AppError.invalidProfileData))
-                    }
-                    return
-                }
-                
                 let profile = Profile(
                     userName: profileResult.username,
-                    name: "\(profileResult.firstName) \(profileResult.lastName)",
-                    loginName: "@\(profileResult.username)",
-                    bio: profileResult.bio ?? ""
+                    name: self?.formatName(firstName: profileResult.firstName, lastName: profileResult.lastName) ?? "",
+                    loginName: self?.formatLoginName(username: profileResult.username) ?? "",
+                    bio: profileResult.bio
                 )
                 self?.profile = profile
+                
                 
                 DispatchQueue.main.async {
                     completion(.success(profile))
@@ -68,6 +61,26 @@ final class ProfileService {
         }
         
         task?.resume()
+    }
+    
+    private func formatName(firstName: String?, lastName: String?) -> String {
+        
+        switch (firstName, lastName) {
+        case (let first?, let last?):
+            return "\(first) \(last)"
+        case (let first?, nil):
+            return first
+        case (nil, let last?):
+            return last
+        case (nil, nil):
+            return ""
+        }
+    }
+    
+    private func formatLoginName(username: String?) -> String {
+        
+        guard let username = username, !username.isEmpty else { return "" }
+        return "@\(username)"
     }
     
     private func makeProfileRequest(token: String) -> URLRequest? {

@@ -114,7 +114,7 @@ final class ProfileViewController: UIViewController {
         ? ""
         : profile.loginName
         
-        bioUILabelView.text = profile.bio.isEmpty
+        bioUILabelView.text = ((profile.bio?.isEmpty) != nil)
         ? ""
         : profile.bio
         

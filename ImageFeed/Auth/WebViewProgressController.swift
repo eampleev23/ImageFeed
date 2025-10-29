@@ -52,7 +52,7 @@ final class WebViewProgressController: NSObject {
             \.estimatedProgress,
              options: [.new],
              changeHandler: { [weak self] webView, change in
-                 guard let self = self else { return }
+                 guard let self else { return }
                  let newProgress = Float(webView.estimatedProgress)
                  self.updateProgressSmoothly(to: newProgress)
              }

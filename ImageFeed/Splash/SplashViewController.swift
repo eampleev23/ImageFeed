@@ -99,8 +99,14 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
                 switch result {
                     
                 case let .success(profile):
-                    print("[SplashViewController, fetchProfile]: профиль успешно загружен, profile.userName: \(profile.userName)")
-                    self.fetchProfileImage(username: profile.userName)
+                    print("[SplashViewController, fetchProfile]: профиль успешно загружен, profile.userName: \(profile.userName ?? "nil")")
+                    
+                    if let username = profile.userName {
+                        self.fetchProfileImage(username: username)
+                    } else {
+                        print("[SplashViewController, fetchProfile]: username отсутствует, переходим к TabBarController без аватара")
+                        self.switchToTabBarController()
+                    }
                     
                 case .failure (let error):
                     print("[SplashViewController, fetchProfile, profileService.fetchProfile]: ошибка загрузки профиля - \(error)")
