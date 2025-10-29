@@ -115,7 +115,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
     
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         
-        print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: получен код авторизации: \(code.prefix(5))")
+        print("[AuthViewController, webViewViewController(didAuthenticateWithCode)]: получен код авторизации: \(code.prefix(5))..")
         
         UIBlockingProgressHUD.show()
         
@@ -157,9 +157,32 @@ extension AuthViewController: WebViewViewControllerDelegate {
     }
     
     private func showErrorAlert(error: Error) {
+        
+        let title: String
+        let message: String
+        let recoveryMessage: String?
+        
+        if let appError = error as? AppError {
+            title = "Ошибка авторизации"
+            message = appError.errorDescription ?? "Не удалось войти в систему"
+            recoveryMessage = appError.recoverySuggestion
+        } else {
+            title = "Что-то пошло не так"
+            message = "Не удалось войти в систему"
+            recoveryMessage = "Попробуйте еще раз"
+        }
+        
+        let fullMessage: String
+        
+        if let recovery = recoveryMessage {
+            fullMessage = "\(message)\n\n\(recovery)"
+        } else {
+            fullMessage = message
+        }
+        
         let alert = UIAlertController(
-            title: "Что-то пошло не так(",
-            message: "Не удалось войти в систему",
+            title: title,
+            message: fullMessage,
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "OK", style: .default))

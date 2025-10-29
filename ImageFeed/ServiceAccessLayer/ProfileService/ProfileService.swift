@@ -22,7 +22,7 @@ final class ProfileService {
         guard let request = makeProfileRequest(token: token) else {
             print("[ProfileService]: invalidRequest - не удалось создать URL запроса")
             DispatchQueue.main.async {
-                completion(.failure(URLError(.badURL)))
+                completion(.failure(AppError.invalidRequest))
             }
             return
         }
@@ -31,6 +31,17 @@ final class ProfileService {
         task = urlSession.objectTask(for: request) { [weak self] (result: Result<ProfileResult, Error>) in
             switch result {
             case .success(let profileResult):
+                
+                // Валидация данных профиля
+                guard !profileResult.username.isEmpty else {
+                    print("[ProfileService]: invalidProfileData - получены пустые данные username")
+                    DispatchQueue.main.async {
+                        completion(.failure(AppError.invalidProfileData))
+                    }
+                    return
+                }
+                
+                
                 let profile = Profile(
                     userName: profileResult.username,
                     name: "\(profileResult.firstName) \(profileResult.lastName)",
@@ -45,8 +56,15 @@ final class ProfileService {
                 
             case .failure(let error):
                 print("[ProfileService]: profileRequestError - \(error.localizedDescription)")
+                
+                let finalError: Error
+                if let appError = error as? AppError, appError.statusCode == 404 {
+                    finalError = AppError.profileNotFound // ← Специфичная ошибка для 404
+                } else {
+                    finalError = error // ← error уже будет AppError благодаря URLSession extension
+                }
                 DispatchQueue.main.async {
-                    completion(.failure(error))
+                    completion(.failure(finalError))
                 }
             }
             self?.task = nil

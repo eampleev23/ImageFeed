@@ -9,13 +9,6 @@ import Foundation
 
 final class OAuth2Service {
     
-    private enum Errors: Error {
-        case codeError
-        case invalidRequest
-        case parsingError
-        case duplicateRequest
-    }
-    
     static let shared = OAuth2Service()
     
     private var activeTokenRequestIfIs: URLSessionTask?
@@ -53,7 +46,7 @@ final class OAuth2Service {
         
         guard activeAuthCodeIfIs != code else {
             print("[OAuth2Service]: duplicateRequest - попытка повторного запроса с тем же кодом")
-            completion(.failure(Errors.duplicateRequest))
+            completion(.failure(AppError.duplicateRequest))
             return
         }
         activeTokenRequestIfIs?.cancel()
@@ -62,7 +55,7 @@ final class OAuth2Service {
         guard let newTokenRequestURL = makeOAuthTokenRequestURL(code: code) else {
             print("[OAuth2Service]: invalidRequest - не удалось создать URL запроса")
             DispatchQueue.main.async {
-                completion(.failure(Errors.invalidRequest))
+                completion(.failure(AppError.invalidRequest))
             }
             return
         }
@@ -80,7 +73,7 @@ final class OAuth2Service {
                 }
                 
             case .failure(let error):
-                print("[OAuth2Service]: tokenRequestError - \(error.localizedDescription), код: \(code)")
+                print("[OAuth2Service]: tokenRequestError - \(error.localizedDescription)")
                 DispatchQueue.main.async {
                     completion(.failure(error))
                     self?.activeTokenRequestIfIs = nil
