@@ -1,11 +1,5 @@
-//
-//  SingleImageViewController.swift
-//  ImageFeed
-//
-//  Created by Евгений Амплеев on 12.10.2025.
-//
-
 import UIKit
+import Kingfisher
 
 final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
     
@@ -41,12 +35,20 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
         return button
     }()
     
+    private let loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        indicator.color = .ypWhite
+        indicator.hidesWhenStopped = true
+        return indicator
+    }()
+    
     private var doubleTapGestureRecognizer: UITapGestureRecognizer!
     
-    var image: UIImage? {
+    var imageURL: String? {
         didSet {
             guard isViewLoaded else { return }
-            setImageAndConfigureLayout()
+            loadLargeImage()
         }
     }
     
@@ -56,7 +58,7 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
         setupUI()
         setupConstraints()
         setupDoubleTapGesture()
-        setImageAndConfigureLayout()
+        loadLargeImage() // УДАЛИТЬ setImageAndConfigureLayout()
     }
     
     override func viewDidLayoutSubviews() {
@@ -71,13 +73,14 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
         scrollView.addSubview(imageView)
         view.addSubview(backButton)
         view.addSubview(shareButton)
+        view.addSubview(loadingIndicator)
         
         scrollView.delegate = self
         
         backButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
         shareButton.addTarget(self, action: #selector(didTapShareButton), for: .touchUpInside)
         
-        imageView.image = image
+        shareButton.isHidden = true
     }
     
     private func setupConstraints() {
@@ -87,12 +90,90 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
+            imageView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            imageView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            imageView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            imageView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            imageView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
+            
             backButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             backButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 2),
             
             shareButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-            shareButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -51)
+            shareButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -51),
+            
+            loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+    }
+    
+    private func loadLargeImage() {
+        guard let imageURLString = imageURL, let url = URL(string: imageURLString) else {
+            print("[SingleImageViewController]: неверный URL для большого изображения")
+            showErrorAlert()
+            return
+        }
+        
+        loadingIndicator.startAnimating()
+        shareButton.isHidden = true
+        
+        imageView.kf.setImage(
+            with: url,
+            options: [
+                .scaleFactor(UIScreen.main.scale),
+                .transition(.fade(0.3)),
+                .cacheOriginalImage
+            ]
+        ) { [weak self] result in
+            guard let self = self else { return }
+            
+            self.loadingIndicator.stopAnimating()
+            
+            switch result {
+            case .success(let value):
+                print("[SingleImageViewController] Большое изображение загружено: \(value.source.url?.absoluteString ?? "")")
+                self.shareButton.isHidden = false
+                self.configureScrollViewWithImage(value.image)
+                
+            case .failure(let error):
+                print("[SingleImageViewController] Ошибка загрузки большого изображения: \(error)")
+                self.showErrorAlert()
+            }
+        }
+    }
+    
+    private func configureScrollViewWithImage(_ image: UIImage) {
+        let imageSize = image.size
+        let viewSize = view.bounds.size
+        
+        let widthScale = viewSize.width / imageSize.width
+        let heightScale = viewSize.height / imageSize.height
+        let minScale = min(widthScale, heightScale)
+        
+        scrollView.zoomScale = minScale
+        scrollView.minimumZoomScale = minScale
+        scrollView.maximumZoomScale = 3.0
+        
+        centerImage()
+    }
+    
+    private func showErrorAlert() {
+        let alert = UIAlertController(
+            title: "Ошибка",
+            message: "Не удалось загрузить изображение",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
+            self?.loadLargeImage()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel) { [weak self] _ in
+            self?.dismiss(animated: true)
+        })
+        
+        present(alert, animated: true)
     }
     
     private func setupDoubleTapGesture() {
@@ -105,7 +186,7 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
     }
     
     @objc private func didTapShareButton(_ sender: Any) {
-        guard let image = image else {
+        guard let image = imageView.image else {
             print("[SingleImageViewController, didTapShareButton]: ошибка - изображение отсутствует")
             return
         }
@@ -167,49 +248,9 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
         return zoomRect
     }
     
-    private func setImageAndConfigureLayout() {
-        imageView.image = image
-        
-        guard let image = image else {
-            print("[SingleImageViewController, setImageAndConfigureLayout]: ошибка - изображение отсутствует")
-            return
-        }
-        
-        let imageSize = image.size
-        let viewSize = view.bounds.size
-        
-        let widthScale = viewSize.width / imageSize.width
-        let heightScale = viewSize.height / imageSize.height
-        let minScale = min(widthScale, heightScale)
-        
-        let scaledImageSize = CGSize(
-            width: imageSize.width * minScale,
-            height: imageSize.height * minScale
-        )
-        
-        imageView.frame = CGRect(
-            origin: .zero,
-            size: scaledImageSize
-        )
-        
-        scrollView.contentSize = scaledImageSize
-        
-        scrollView.zoomScale = minScale
-        scrollView.minimumZoomScale = minScale
-        scrollView.maximumZoomScale = 3.0
-        
-        centerImage()
-    }
-    
-    private func calculateScaleForImage(_ image: UIImage) -> CGFloat {
-        let viewSize = scrollView.bounds.size
-        let imageSize = image.size
-        
-        let widthScale = viewSize.width / imageSize.width
-        let heightScale = viewSize.height / imageSize.height
-        
-        return min(widthScale, heightScale)
-    }
+    // УДАЛИТЬ эти методы, так как они конфликтуют с новой логикой:
+    // private func setImageAndConfigureLayout()
+    // private func calculateScaleForImage(_ image: UIImage) -> CGFloat
     
     private func centerImage() {
         let scrollViewSize = scrollView.bounds.size

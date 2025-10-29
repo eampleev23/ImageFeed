@@ -6,8 +6,12 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ImageListViewController: UIViewController {
+    
+    private let imageListService = ImageListService()
+    private var observer: NSObjectProtocol?
     
     private enum Constants {
         static let photosNames: [String] = Array(0..<20).map{ "\($0)" }
@@ -43,6 +47,37 @@ final class ImageListViewController: UIViewController {
         super.viewDidLoad()
         setupView()
         setupConstraints()
+        setupObserver()
+        imageListService.fetchPhotosNextPage()
+    }
+    
+    private func setupObserver() {
+        observer = NotificationCenter.default.addObserver(
+            forName: ImageListService.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.updateTableViewAnimated()
+        }
+    }
+    private func updateTableViewAnimated() {
+        let oldCount = tableView.numberOfRows(inSection: 0)
+        let newCount = imageListService.photos.count
+        
+        tableView.performBatchUpdates {
+            let indexPaths = (oldCount..<newCount).map { index in
+                IndexPath(row: index, section: 0)
+            }
+            tableView.insertRows(at: indexPaths, with: .automatic)
+        } completion: { _ in
+            // Дополнительные действия после обновления
+        }
+    }
+    
+    private func loadNextPageIfNeeded(for indexPath: IndexPath) {
+        if indexPath.row + 1 == imageListService.photos.count {
+            imageListService.fetchPhotosNextPage()
+        }
     }
     
     private func setupView() {
@@ -60,29 +95,75 @@ final class ImageListViewController: UIViewController {
     }
     
     private func showSingleImageViewController(for indexPath: IndexPath) {
+        guard indexPath.row < imageListService.photos.count else { return }
+        
         let singleImageVC = SingleImageViewController()
-        let image = UIImage(named: Constants.photosNames[indexPath.row])
-        singleImageVC.image = image
+        let photo = imageListService.photos[indexPath.row]
+        
+        // Передаем URL большого изображения
+        singleImageVC.imageURL = photo.largeImageURL
         singleImageVC.modalPresentationStyle = .fullScreen
         present(singleImageVC, animated: true)
     }
     
-    private func configCell(for cell: ImageListCell, with indexPath: IndexPath, isLiked: Bool ) {
-        
-        let imageName = Constants.photosNames[indexPath.row]
-        cell.isLiked = isLiked
-        
-        if UIImage(named: imageName) != nil {
-            cell.picture.image = UIImage(named: imageName)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-                cell.addGradientIfNeeded()
-            }
-        } else {
-            print("[ImageListViewController, configCell]: изображение \(imageName) не найдено")
-            cell.picture.image = UIImage(systemName: "photo")
+    private func configCell(for cell: ImageListCell, with indexPath: IndexPath) {
+        guard indexPath.row < imageListService.photos.count else {
+            print("[ImageListViewController, configCell]: индекс за пределами массива")
+            return
         }
         
-        cell.publishDate.text = dateFormatter.string(from: Date())
+        let photo = imageListService.photos[indexPath.row]
+        
+        // Устанавливаем данные из photo
+        cell.isLiked = photo.isLiked
+        cell.publishDate.text = formatDate(photo.createdAt)
+        
+        // Загрузка изображения (заглушка - нужно будет реализовать загрузку)
+        loadImageForCell(cell, photo: photo)
+    }
+    private func formatDate(_ date: Date?) -> String {
+        guard let date = date else { return "" }
+        return dateFormatter.string(from: date)
+    }
+    private func loadImageForCell(_ cell: ImageListCell, photo: Photo) {
+        guard let url = URL(string: photo.thumbImageURL) else {
+            print("[ImageListViewController, loadImageForCell]: неверный URL изображения - \(photo.thumbImageURL)")
+            cell.picture.image = UIImage(systemName: "photo")
+            return
+        }
+        
+        // Настройка индикатора загрузки
+        let processor = RoundCornerImageProcessor(cornerRadius: 16)
+        
+        cell.picture.kf.indicatorType = .activity
+        cell.picture.kf.setImage(
+            with: url,
+            placeholder: UIImage(named: "placeholder"), // можно добавить свой плейсхолдер
+            options: [
+                .processor(processor),
+                .scaleFactor(UIScreen.main.scale),
+                .transition(.fade(0.2)),
+                .cacheOriginalImage
+            ]
+        ) { [weak cell] result in
+            switch result {
+            case .success(let value):
+                print("[ImageListViewController] Изображение загружено: \(value.source.url?.absoluteString ?? "")")
+                DispatchQueue.main.async {
+                    cell?.addGradientIfNeeded()
+                }
+            case .failure(let error):
+                print("[ImageListViewController] Ошибка загрузки изображения: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    cell?.picture.image = UIImage(systemName: "photo")
+                }
+            }
+        }
+    }
+    deinit {
+        if let observer = observer {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
 }
 
@@ -93,26 +174,23 @@ extension ImageListViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        guard indexPath.row < imageListService.photos.count else {
+            return Constants.defaultCellHeight
+        }
         
         if let cacheHeight = heightCache[indexPath] {
             return cacheHeight
         }
         
-        let imageName = Constants.photosNames[indexPath.row]
-        let image = UIImage(named: imageName)
+        let photo = imageListService.photos[indexPath.row]
+        let imageSize = photo.size
         
-        let imageViewHeight: CGFloat
+        let tableViewWidth = tableView.frame.width
+        let horizontalPadding: CGFloat = 0
+        let availableWidth = tableViewWidth - (horizontalPadding * 2)
         
-        if let image {
-            let tableViewWidth = tableView.frame.width
-            let horizontalPadding: CGFloat = 0
-            let availableWidth = tableViewWidth - (horizontalPadding * 2)
-            
-            let aspectRatio = image.size.height / image.size.width
-            imageViewHeight = availableWidth * aspectRatio
-        } else {
-            imageViewHeight = Constants.defaultCellHeight
-        }
+        let aspectRatio = imageSize.height / imageSize.width
+        let imageViewHeight = availableWidth * aspectRatio
         
         let verticalPadding: CGFloat = 4
         let totalHeight = imageViewHeight + verticalPadding
@@ -120,13 +198,15 @@ extension ImageListViewController: UITableViewDelegate {
         heightCache[indexPath] = totalHeight
         return totalHeight
     }
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        loadNextPageIfNeeded(for: indexPath)
+    }
 }
 
 extension ImageListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let count = Constants.photosNames.count
-        return count
+        return imageListService.photos.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -138,9 +218,7 @@ extension ImageListViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        let isLiked = indexPath.row % 2 == 0
-        configCell(for: imageListCell, with: indexPath, isLiked: isLiked)
-        
+        configCell(for: imageListCell, with: indexPath)
         return imageListCell
     }
 }

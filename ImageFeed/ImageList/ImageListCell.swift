@@ -105,6 +105,10 @@ final class ImageListCell: UITableViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
+        
+        // Отменяем загрузку изображения Kingfisher
+        picture.kf.cancelDownloadTask()
+        
         picture.image = nil
         publishDate.text = nil
         gradientAdded = false

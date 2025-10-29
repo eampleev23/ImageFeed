@@ -33,5 +33,18 @@ enum AppConstants {
         return defaultBaseURL.appendingPathComponent("/me")
     }
     
+    static var photosURL: URL {
+        return defaultBaseURL.appendingPathComponent("/photos")
+    }
+    
+    static func getPhotosURL(page: Int, perPage: Int = 10) -> URL? {
+        var components = URLComponents(url: photosURL, resolvingAgainstBaseURL: false)
+        components?.queryItems = [
+            URLQueryItem(name: "page", value: "\(page)"),
+            URLQueryItem(name: "per_page", value: "\(perPage)")
+        ]
+        return components?.url
+    }
+    
     
 }
