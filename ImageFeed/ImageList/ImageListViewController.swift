@@ -126,21 +126,18 @@ final class ImageListViewController: UIViewController {
         return dateFormatter.string(from: date)
     }
     private func loadImageForCell(_ cell: ImageListCell, photo: Photo) {
+        
         guard let url = URL(string: photo.thumbImageURL) else {
             print("[ImageListViewController, loadImageForCell]: неверный URL изображения - \(photo.thumbImageURL)")
             cell.picture.image = UIImage(systemName: "photo")
             return
         }
         
-        // Настройка индикатора загрузки
-        let processor = RoundCornerImageProcessor(cornerRadius: 16)
-        
         cell.picture.kf.indicatorType = .activity
         cell.picture.kf.setImage(
             with: url,
             placeholder: UIImage(named: "placeholder"), // можно добавить свой плейсхолдер
             options: [
-                .processor(processor),
                 .scaleFactor(UIScreen.main.scale),
                 .transition(.fade(0.2)),
                 .cacheOriginalImage
