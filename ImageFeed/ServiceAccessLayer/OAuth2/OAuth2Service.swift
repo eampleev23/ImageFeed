@@ -60,7 +60,6 @@ final class OAuth2Service {
             return
         }
         
-        // Используем новый универсальный метод
         let tokenRequestToDo = URLSession.shared.objectTask(for: newTokenRequestURL) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
             switch result {
             case .success(let tokenResponse):

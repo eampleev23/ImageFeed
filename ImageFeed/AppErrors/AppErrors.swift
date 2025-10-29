@@ -29,8 +29,8 @@ enum AppError: Error, LocalizedError {
     case avatarLoadFailed
     case profileNotFound
     case invalidProfileData
-    case avatarNotFound // ← ДОБАВИТЬ: аватар не найден
-    case invalidAvatarURL // ← ДОБАВИТЬ: некорректный URL аватара
+    case avatarNotFound
+    case invalidAvatarURL
     
     // UI errors
     case imageLoadFailed
@@ -58,7 +58,7 @@ enum AppError: Error, LocalizedError {
     var isProfileError: Bool {
         switch self {
         case .profileLoadFailed, .avatarLoadFailed, .profileNotFound,
-             .invalidProfileData, .avatarNotFound, .invalidAvatarURL: // ← ОБНОВИТЬ
+             .invalidProfileData, .avatarNotFound, .invalidAvatarURL:
             return true
         default:
             return false
@@ -123,9 +123,9 @@ enum AppError: Error, LocalizedError {
             return "Профиль не найден"
         case .invalidProfileData:
             return "Некорректные данные профиля"
-        case .avatarNotFound: // ← ДОБАВИТЬ
+        case .avatarNotFound:
             return "Аватар не найден"
-        case .invalidAvatarURL: // ← ДОБАВИТЬ
+        case .invalidAvatarURL:
             return "Некорректная ссылка на аватар"
         case .imageLoadFailed:
             return "Не удалось загрузить изображение"
@@ -160,7 +160,7 @@ enum AppError: Error, LocalizedError {
         case .insufficientScope:
             return "Обратитесь к администратору для получения прав доступа"
         case .profileLoadFailed, .avatarLoadFailed, .profileNotFound, .invalidProfileData,
-             .avatarNotFound, .invalidAvatarURL: // ← ОБНОВИТЬ
+             .avatarNotFound, .invalidAvatarURL:
             return "Попробуйте обновить профиль"
         default:
             return "Попробуйте еще раз"

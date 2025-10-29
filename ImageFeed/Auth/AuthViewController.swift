@@ -202,7 +202,6 @@ extension AuthViewController: WebViewViewControllerDelegate {
         
         let splashViewController = SplashViewController()
         
-        // Анимация перехода слева
         let transition = CATransition()
         transition.duration = 0.3
         transition.type = .push

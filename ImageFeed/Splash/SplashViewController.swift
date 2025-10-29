@@ -41,7 +41,7 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
     // MARK: - Setup Methods
     private func setupView() {
         view.backgroundColor = YPColors.black
-        view.addSubview(logoImageView) // ДОБАВЛЕНО: Добавляем imageView на view
+        view.addSubview(logoImageView)
     }
     
     private func setupConstraints() {
@@ -128,7 +128,6 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
     }
     
     private func handleProfileError(_ error: Error) {
-        // Преобразуем ошибку в AppError если нужно
         let appError: AppError
         if let existingAppError = error as? AppError {
             appError = existingAppError
@@ -136,7 +135,6 @@ final class SplashViewController: UIViewController, AuthViewControllerDelegate {
             appError = AppError.profileLoadFailed
         }
         
-        // Показываем alert с возможностью повтора
         self.showRetryAlert(error: appError) { [weak self] in
             if let token = self?.storage.token {
                 self?.fetchProfile(token: token)

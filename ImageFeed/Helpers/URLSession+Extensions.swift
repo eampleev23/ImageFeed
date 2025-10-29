@@ -25,7 +25,6 @@ extension URLSession {
                 } else {
                     print("[dataTask]: NetworkError - код ошибки \(statusCode), URL: \(request.url?.absoluteString ?? "unknown")")
                     
-                    // Преобразование HTTP кодов в AppError
                     let appError: AppError
                     switch statusCode {
                     case 400:
@@ -76,12 +75,10 @@ extension URLSession {
                     let dataString = String(data: data, encoding: .utf8) ?? "Нечитаемые данные"
                     print("[objectTask]: decodingError - \(error.localizedDescription), Данные: \(dataString)")
                     
-                    // ЗАМЕНА NetworkError на AppError
                     completion(.failure(AppError.parsingError))
                 }
             case .failure(let error):
                 print("[objectTask]: networkError - \(error.localizedDescription)")
-                // error уже будет AppError, так как data(for:) теперь возвращает AppError
                 completion(.failure(error))
             }
         }

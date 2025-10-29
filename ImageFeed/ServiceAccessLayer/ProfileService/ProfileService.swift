@@ -27,12 +27,10 @@ final class ProfileService {
             return
         }
         
-        // Используем новый универсальный метод
         task = urlSession.objectTask(for: request) { [weak self] (result: Result<ProfileResult, Error>) in
             switch result {
             case .success(let profileResult):
                 
-                // Валидация данных профиля
                 guard !profileResult.username.isEmpty else {
                     print("[ProfileService]: invalidProfileData - получены пустые данные username")
                     DispatchQueue.main.async {
@@ -40,7 +38,6 @@ final class ProfileService {
                     }
                     return
                 }
-                
                 
                 let profile = Profile(
                     userName: profileResult.username,
@@ -59,9 +56,9 @@ final class ProfileService {
                 
                 let finalError: Error
                 if let appError = error as? AppError, appError.statusCode == 404 {
-                    finalError = AppError.profileNotFound // ← Специфичная ошибка для 404
+                    finalError = AppError.profileNotFound
                 } else {
-                    finalError = error // ← error уже будет AppError благодаря URLSession extension
+                    finalError = error
                 }
                 DispatchQueue.main.async {
                     completion(.failure(finalError))

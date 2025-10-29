@@ -46,8 +46,8 @@ final class WebViewProgressController: NSObject {
     
     // MARK: - KVO
     func startObserving() {
+        
         guard !isObserving, let webView = webView else { return }
-        // ЗАМЕНА: Используем новый API для наблюдения
         estimatedProgressObservation = webView.observe(
             \.estimatedProgress,
              options: [.new],
@@ -117,12 +117,9 @@ final class WebViewProgressController: NSObject {
     
     private func updateProgressSmoothly(to target: Float) {
         targetProgress = target
-        
-        // Останавливаем фейковый прогресс когда начинается реальный
         fakeProgressTimer?.invalidate()
         fakeProgressTimer = nil
         
-        // Если прогресс завершен
         if target >= 1.0 {
             progressTimer?.invalidate()
             progressTimer = nil
@@ -136,7 +133,6 @@ final class WebViewProgressController: NSObject {
             return
         }
         
-        // Показываем прогресс-бар если он скрыт
         if progressView.alpha == 0.0 {
             progressView.alpha = 1.0
         }
