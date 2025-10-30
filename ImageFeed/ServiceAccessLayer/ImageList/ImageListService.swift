@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class ImageListService {
+final class ImagesListService {
     
     // Массив для хранения загруженных фотографий
     private(set) var photos: [Photo] = []
@@ -25,7 +25,6 @@ final class ImageListService {
     private var isFetching = false
     
     //MARK: - Network methods
-    
     func fetchPhotosNextPage(){
         
         // Если уже идет загрузка прерываем выполнение
@@ -34,7 +33,7 @@ final class ImageListService {
         isFetching = true
         
         // Создаем URL и запрос
-        guard let url = AppConstants.getPhotosURL(page: nextPage, perPage: 10) else {
+        guard let url = AppConstants.getPhotosURL(page: nextPage, perPage: 20) else {
             isFetching = false
             return
         }
@@ -63,7 +62,7 @@ final class ImageListService {
                     self.isFetching = false
                     
                     NotificationCenter.default.post(
-                        name: ImageListService.didChangeNotification,
+                        name: ImagesListService.didChangeNotification,
                         object: self
                     )
                 }
