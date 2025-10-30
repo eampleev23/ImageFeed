@@ -21,6 +21,8 @@ final class ImageListCell: UITableViewCell {
     
     private var gradientAdded = false
     
+    var currentImageURL: String?
+    
     
     private let likeBtn: UIButton = {
         let button = UIButton()
@@ -34,6 +36,7 @@ final class ImageListCell: UITableViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 16
+        imageView.backgroundColor = .clear
         return imageView
     }()
     
@@ -53,17 +56,14 @@ final class ImageListCell: UITableViewCell {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            // Picture
             picture.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             picture.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             picture.topAnchor.constraint(equalTo: contentView.topAnchor),
             picture.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
             
-            // Publish Date
             publishDate.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
             publishDate.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
             
-            // Like Button
             likeBtn.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 0),
             likeBtn.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
             likeBtn.widthAnchor.constraint(equalToConstant: 44),
@@ -106,14 +106,14 @@ final class ImageListCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         
-        // Отменяем загрузку изображения Kingfisher
         picture.kf.cancelDownloadTask()
-        
         picture.image = nil
         publishDate.text = nil
         gradientAdded = false
         isLiked = false
+        currentImageURL = nil
         picture.layer.sublayers?.removeAll { $0 is CAGradientLayer }
+        picture.backgroundColor = .clear
     }
     
     func addGradientIfNeeded() {
