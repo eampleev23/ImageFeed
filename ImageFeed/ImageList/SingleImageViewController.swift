@@ -284,7 +284,7 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
         var zoomRect = CGRect.zero
         
         // Текущий масштаб
-        let currentScale = scrollView.zoomScale
+        _ = scrollView.zoomScale
         let targetScale = scale
         
         // Размер области zoom относительно текущего размера imageView
@@ -297,10 +297,6 @@ final class SingleImageViewController: UIViewController, UIScrollViewDelegate {
         
         return zoomRect
     }
-    
-    // УДАЛИТЬ эти методы, так как они конфликтуют с новой логикой:
-    // private func setImageAndConfigureLayout()
-    // private func calculateScaleForImage(_ image: UIImage) -> CGFloat
     
     private func centerImage() {
         let scrollViewSize = scrollView.bounds.size
