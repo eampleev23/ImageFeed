@@ -7,18 +7,28 @@
 
 import UIKit
 import Kingfisher
+
 final class ImageListViewController: UIViewController {
+    
+    // MARK: - Properties
+    
+    private enum Constants {
+        static let defaultCellHeight: CGFloat = 200
+    }
+    
+    // MARK: - Properties
     
     private let imageListService = ImagesListService()
     private var observer: NSObjectProtocol?
-    
-    // Убираем флаг блокировки скролла для отдельных изображений
     private var isInitialLoading = true
+    private var heightCache: [IndexPath: CGFloat] = [:]
     
-    private enum Constants {
-        static let photosNames: [String] = Array(0..<20).map{ "\($0)" }
-        static let defaultCellHeight: CGFloat = 200
-    }
+    private lazy var dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        formatter.timeStyle = .none
+        return formatter
+    }()
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -32,18 +42,10 @@ final class ImageListViewController: UIViewController {
         tableView.register(ImageListCell.self, forCellReuseIdentifier: ImageListCell.reuseIdentifier)
         tableView.delegate = self
         tableView.dataSource = self
-        
         return tableView
     }()
     
-    private lazy var dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .long
-        formatter.timeStyle = .none
-        return formatter
-    }()
-    
-    private var heightCache: [IndexPath: CGFloat] = [:]
+    // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,13 +57,35 @@ final class ImageListViewController: UIViewController {
         imageListService.fetchPhotosNextPage()
     }
     
+    deinit {
+        if let observer = observer {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        ImageFeedProgressHUD.dismiss()
+    }
+    
+    // MARK: - Private Methods
+    
+    private func setupView() {
+        view.backgroundColor = .ypBlack
+        view.addSubview(tableView)
+    }
+    
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+    }
+    
     private func setupObserver() {
         observer = NotificationCenter.default.addObserver(
             forName: ImagesListService.didChangeNotification,
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            // Скрываем прелоадер когда пришли первые данные
             ImageFeedProgressHUD.dismiss()
             self?.isInitialLoading = false
             self?.updateTableViewAnimated()
@@ -87,20 +111,6 @@ final class ImageListViewController: UIViewController {
         }
     }
     
-    private func setupView() {
-        view.backgroundColor = .ypBlack
-        view.addSubview(tableView)
-    }
-    
-    private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ])
-    }
-    
     private func showSingleImageViewController(for indexPath: IndexPath) {
         guard indexPath.row < imageListService.photos.count else { return }
         
@@ -112,16 +122,12 @@ final class ImageListViewController: UIViewController {
     }
     
     private func configCell(for cell: ImageListCell, with indexPath: IndexPath) {
-        guard indexPath.row < imageListService.photos.count else {
-            print("[ImageListViewController, configCell]: индекс за пределами массива")
-            return
-        }
+        guard indexPath.row < imageListService.photos.count else { return }
         
         let photo = imageListService.photos[indexPath.row]
         cell.isLiked = photo.isLiked
         cell.publishDate.text = formatDate(photo.createdAt)
         
-        // Загрузка изображения БЕЗ показа прелоадера для каждого изображения
         loadImageForCell(cell, photo: photo)
     }
     
@@ -132,7 +138,6 @@ final class ImageListViewController: UIViewController {
     
     private func loadImageForCell(_ cell: ImageListCell, photo: Photo) {
         guard let url = URL(string: photo.thumbImageURL) else {
-            print("[ImageListViewController, loadImageForCell]: неверный URL изображения - \(photo.thumbImageURL)")
             cell.picture.image = nil
             return
         }
@@ -140,19 +145,16 @@ final class ImageListViewController: UIViewController {
         cell.currentImageURL = photo.thumbImageURL
         cell.picture.kf.indicatorType = .none
         
-        // Создаем простой placeholder с использованием только UIImage
         let placeholderImage: UIImage? = {
-            let size = CGSize(width: 300, height: 212) // Фиксированная ширина для placeholder
+            let size = CGSize(width: 300, height: 212)
             let renderer = UIGraphicsImageRenderer(size: size)
             
             return renderer.image { context in
-                // Рисуем белый полупрозрачный фон с закругленными углами
                 let path = UIBezierPath(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 16)
                 path.addClip()
                 UIColor.ypWhite.withAlphaComponent(0.5).setFill()
                 context.fill(CGRect(origin: .zero, size: size))
                 
-                // Рисуем изображение заглушки по центру (уменьшенное в 3 раза)
                 let stubImage = UIImage(resource: .feedImageStub)
                 let imageSize = CGSize(
                     width: stubImage.size.width / 3,
@@ -183,12 +185,9 @@ final class ImageListViewController: UIViewController {
                     DispatchQueue.main.async {
                         cell.addGradientIfNeeded()
                     }
-                } else {
-                    print("[ImageListViewController] URL изменился, игнорируем загруженное изображение")
                 }
-            case .failure(let error):
+            case .failure(_):
                 if cell.currentImageURL == photo.thumbImageURL {
-                    print("[ImageListViewController] Ошибка загрузки изображения: \(error.localizedDescription)")
                     DispatchQueue.main.async {
                         cell.picture.image = nil
                     }
@@ -196,17 +195,11 @@ final class ImageListViewController: UIViewController {
             }
         }
     }
-    
-    deinit {
-        if let observer = observer {
-            NotificationCenter.default.removeObserver(observer)
-        }
-        ImageFeedProgressHUD.dismiss()
-    }
 }
 
+// MARK: - UITableViewDelegate
+
 extension ImageListViewController: UITableViewDelegate {
-    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         showSingleImageViewController(for: indexPath)
     }
@@ -241,14 +234,12 @@ extension ImageListViewController: UITableViewDelegate {
         loadNextPageIfNeeded(for: indexPath)
     }
     
-    // Убираем блокировку скролла
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        // Скролл больше не блокируется
-    }
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {}
 }
 
+// MARK: - UITableViewDataSource
+
 extension ImageListViewController: UITableViewDataSource {
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return imageListService.photos.count
     }
