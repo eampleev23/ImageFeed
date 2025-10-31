@@ -60,6 +60,7 @@ final class ImageListCell: UITableViewCell {
             picture.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             picture.topAnchor.constraint(equalTo: contentView.topAnchor),
             picture.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+            picture.heightAnchor.constraint(greaterThanOrEqualToConstant: 212), // Минимальная высота для placeholder
             
             publishDate.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
             publishDate.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
@@ -114,6 +115,8 @@ final class ImageListCell: UITableViewCell {
         currentImageURL = nil
         picture.layer.sublayers?.removeAll { $0 is CAGradientLayer }
         picture.backgroundColor = .clear
+        
+        NSLayoutConstraint.deactivate(picture.constraints)
     }
     
     func addGradientIfNeeded() {

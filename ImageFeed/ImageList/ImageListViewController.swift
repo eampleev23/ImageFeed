@@ -139,9 +139,38 @@ final class ImageListViewController: UIViewController {
         
         cell.currentImageURL = photo.thumbImageURL
         cell.picture.kf.indicatorType = .none
+        
+        // Создаем простой placeholder с использованием только UIImage
+        let placeholderImage: UIImage? = {
+            let size = CGSize(width: 300, height: 212) // Фиксированная ширина для placeholder
+            let renderer = UIGraphicsImageRenderer(size: size)
+            
+            return renderer.image { context in
+                // Рисуем белый полупрозрачный фон с закругленными углами
+                let path = UIBezierPath(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 16)
+                path.addClip()
+                UIColor.ypWhite.withAlphaComponent(0.5).setFill()
+                context.fill(CGRect(origin: .zero, size: size))
+                
+                // Рисуем изображение заглушки по центру (уменьшенное в 3 раза)
+                let stubImage = UIImage(resource: .feedImageStub)
+                let imageSize = CGSize(
+                    width: stubImage.size.width / 3,
+                    height: stubImage.size.height / 3
+                )
+                let imageRect = CGRect(
+                    x: (size.width - imageSize.width) / 2,
+                    y: (size.height - imageSize.height) / 2,
+                    width: imageSize.width,
+                    height: imageSize.height
+                )
+                stubImage.draw(in: imageRect)
+            }
+        }()
+        
         cell.picture.kf.setImage(
             with: url,
-            placeholder: nil,
+            placeholder: placeholderImage,
             options: [
                 .scaleFactor(UIScreen.main.scale),
                 .transition(.fade(0.2)),
@@ -149,9 +178,8 @@ final class ImageListViewController: UIViewController {
             ]
         ) { result in
             switch result {
-            case .success(let value):
+            case .success(_):
                 if cell.currentImageURL == photo.thumbImageURL {
-                    print("[ImageListViewController] Изображение загружено: \(value.source.url?.absoluteString ?? "")")
                     DispatchQueue.main.async {
                         cell.addGradientIfNeeded()
                     }
