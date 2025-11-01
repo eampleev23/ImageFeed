@@ -9,30 +9,25 @@ import Foundation
 
 final class ImagesListService {
     
-    // Массив для хранения загруженных фотографий
     private(set) var photos: [Photo] = []
     
-    // Оповещение об изменении данных
     static let didChangeNotification = Notification.Name(rawValue: "ImageListServiceDidChange")
     
-    // Текущая задача загрузки
     private var fetchTask: URLSessionTask?
     
-    // Номер следующей страницы для загрузки
     private var nextPage = 1
     
-    // Флаг, указывающий, загружены ли все страницы
     private var isFetching = false
+    private var isLiking = false
     
     //MARK: - Network methods
+    
     func fetchPhotosNextPage(){
         
-        // Если уже идет загрузка прерываем выполнение
         guard !isFetching else {return}
         
         isFetching = true
         
-        // Создаем URL и запрос
         guard let url = AppConstants.getPhotosURL(page: nextPage, perPage: 20) else {
             isFetching = false
             return
@@ -63,7 +58,8 @@ final class ImagesListService {
                     
                     NotificationCenter.default.post(
                         name: ImagesListService.didChangeNotification,
-                        object: self
+                        object: self,
+                        userInfo: ["type" : "photosLoaded"]
                     )
                 }
                 
@@ -78,11 +74,53 @@ final class ImagesListService {
         fetchTask?.resume()
     }
     
+    func changeLike(photoID: String, isLike: Bool, _ completion: @escaping (Result <Void, Error>) -> Void) {
+        
+        guard !isLiking else {return}
+        isLiking = true
+        
+        guard let url = AppConstants.setLikeURL(photoID: photoID) else {
+            isLiking = false
+            return
+        }
+        
+        var request: URLRequest = URLRequest(url:url)
+        request.httpMethod = "POST"
+        guard let token = OAuth2TokenStorage.shared.token else {
+            let error = NSError(domain: "ProfileImageService", code: 401, userInfo: [NSLocalizedDescriptionKey: "Authorization token missing"])
+            print("[ImageListService, fetchPhotosNextPage]: authError - отсутствует токен авторизации: \(error)")
+            return
+        }
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        fetchTask = URLSession.shared.objectTask(for: request) {
+            
+            [weak self] (result: Result <EmptyResponse, Error>) in
+            
+            guard let self else {return}
+            switch result {
+            case .success:
+                // Вместо прпавильного замыкания отрабатывает это... Что не так?
+                DispatchQueue.main.async {
+                    self.isLiking = false
+                    completion(.success(()))
+                }
+            case .failure(let error):
+                print("Error change like photo: \(error)")
+                DispatchQueue.main.async {
+                    self.isLiking = false
+                    completion(.failure(error))
+                }
+            }
+        }
+        fetchTask?.resume()
+    }
+    
     private func convertToPhoto(from result: PhotoResult) -> Photo {
         let size = CGSize(width: result.width, height: result.height)
         
-        _ = ISO8601DateFormatter()
-        let createdAt = Date()
+        let dateFormatter = ISO8601DateFormatter()
+        let createdAt = result.createdAt.flatMap { dateFormatter.date(from: $0) }
         
         return Photo(
             id: result.id,

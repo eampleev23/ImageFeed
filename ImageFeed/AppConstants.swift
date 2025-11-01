@@ -46,5 +46,9 @@ enum AppConstants {
         return components?.url
     }
     
-    
+    static func setLikeURL(photoID: String) -> URL? {
+        return photosURL
+            .appendingPathComponent(photoID)
+            .appendingPathComponent("like")
+    }
 }

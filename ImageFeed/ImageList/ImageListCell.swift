@@ -5,30 +5,19 @@
 //  Created by Евгений Амплеев on 10.10.2025.
 //
 
-import Foundation
 import UIKit
 
 final class ImageListCell: UITableViewCell {
     
-    private enum Constants {
-        static let likeImageResourse: ImageResource = .activeSVG
-        static let noLikeImageResourse: ImageResource = .noActiveSVG
-    }
+    // MARK: - Properties
     
     static let reuseIdentifier = "ImageListCell"
     
-    private let gradientHeight: CGFloat = 30
-    
-    private var gradientAdded = false
+    weak var delegate: ImageListCellDelegate?
     
     var currentImageURL: String?
     
-    
-    private let likeBtn: UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
+    var photo: Photo?
     
     let picture: UIImageView = {
         let imageView = UIImageView()
@@ -54,23 +43,16 @@ final class ImageListCell: UITableViewCell {
         }
     }
     
-    private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            picture.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            picture.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            picture.topAnchor.constraint(equalTo: contentView.topAnchor),
-            picture.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
-            picture.heightAnchor.constraint(greaterThanOrEqualToConstant: 212), // Минимальная высота для placeholder
-            
-            publishDate.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
-            publishDate.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
-            
-            likeBtn.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 0),
-            likeBtn.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
-            likeBtn.widthAnchor.constraint(equalToConstant: 44),
-            likeBtn.heightAnchor.constraint(equalToConstant: 44)
-        ])
-    }
+    lazy var likeBtn: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private let gradientHeight: CGFloat = 30
+    private var gradientAdded = false
+    
+    // MARK: - Lifecycle
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -80,28 +62,7 @@ final class ImageListCell: UITableViewCell {
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        assertionFailure("init(coder:) has not been implemented")
         return nil
-    }
-    
-    private func setupUI() {
-        backgroundColor = .ypBlack
-        contentView.backgroundColor = .ypBlack
-        selectionStyle = .none
-        
-        contentView.addSubview(picture)
-        contentView.addSubview(publishDate)
-        contentView.addSubview(likeBtn)
-        
-        likeBtn.addTarget(self, action: #selector(likeButtonTapped), for: .touchUpInside)
-        
-        let selectionView = UIView()
-        selectionView.backgroundColor = UIColor.clear
-        self.selectedBackgroundView = selectionView
-    }
-    
-    @objc private func likeButtonTapped(_ sender: Any) {
-        isLiked.toggle()
     }
     
     override func prepareForReuse() {
@@ -119,12 +80,10 @@ final class ImageListCell: UITableViewCell {
         NSLayoutConstraint.deactivate(picture.constraints)
     }
     
+    // MARK: - Public Methods
+    
     func addGradientIfNeeded() {
-        
-        guard !gradientAdded, picture.bounds.width > 0 else {
-            print("[ImageListCell, addGradientIfNeeded]: градиент уже добавлен или bounds нулевые")
-            return
-        }
+        guard !gradientAdded, picture.bounds.width > 0 else { return }
         
         picture.layer.sublayers?.removeAll { $0 is CAGradientLayer }
         
@@ -150,12 +109,60 @@ final class ImageListCell: UITableViewCell {
         gradientAdded = true
     }
     
-    private func updateLikeButtonAppearance() {
+    // MARK: - Private Methods
+    
+    private func setupUI() {
+        backgroundColor = .ypBlack
+        contentView.backgroundColor = .ypBlack
+        selectionStyle = .none
         
+        contentView.addSubview(picture)
+        contentView.addSubview(publishDate)
+        contentView.addSubview(likeBtn)
+        
+        likeBtn.addTarget(self, action: #selector(likeButtonTapped), for: .touchUpInside)
+        
+        let selectionView = UIView()
+        selectionView.backgroundColor = UIColor.clear
+        self.selectedBackgroundView = selectionView
+    }
+    
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            picture.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            picture.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            picture.topAnchor.constraint(equalTo: contentView.topAnchor),
+            picture.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+            picture.heightAnchor.constraint(greaterThanOrEqualToConstant: 212),
+            
+            publishDate.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
+            publishDate.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
+            
+            likeBtn.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 0),
+            likeBtn.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
+            likeBtn.widthAnchor.constraint(equalToConstant: 44),
+            likeBtn.heightAnchor.constraint(equalToConstant: 44)
+        ])
+    }
+    
+    private func updateLikeButtonAppearance() {
         let uiImage = isLiked ?
         UIImage(resource: Constants.likeImageResourse)
-        :  UIImage(resource: Constants.noLikeImageResourse)
-        
+        : UIImage(resource: Constants.noLikeImageResourse)
         likeBtn.setImage(uiImage, for: .normal)
+    }
+    
+    @objc private func likeButtonTapped(_ sender: Any) {
+        guard let photo else {return}
+        delegate?.imagesListCellDidTapLike(self, photoID: photo.id, isLike: !isLiked)
+    }
+}
+
+// MARK: - Constants
+
+private extension ImageListCell {
+    enum Constants {
+        static let likeImageResourse: ImageResource = .activeSVG
+        static let noLikeImageResourse: ImageResource = .noActiveSVG
     }
 }

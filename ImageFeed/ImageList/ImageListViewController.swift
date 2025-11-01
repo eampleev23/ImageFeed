@@ -12,12 +12,6 @@ final class ImageListViewController: UIViewController {
     
     // MARK: - Properties
     
-    private enum Constants {
-        static let defaultCellHeight: CGFloat = 200
-    }
-    
-    // MARK: - Properties
-    
     private let imageListService = ImagesListService()
     private var observer: NSObjectProtocol?
     private var isInitialLoading = true
@@ -85,10 +79,21 @@ final class ImageListViewController: UIViewController {
             forName: ImagesListService.didChangeNotification,
             object: nil,
             queue: .main
-        ) { [weak self] _ in
-            ImageFeedProgressHUD.dismiss()
-            self?.isInitialLoading = false
-            self?.updateTableViewAnimated()
+        ) { [weak self] notification in
+            
+            guard let self else { return }
+            
+            let type = notification.userInfo?["type"] as? String
+            
+            switch type {
+            case "photosLoaded":
+                ImageFeedProgressHUD.dismiss()
+                self.isInitialLoading = false
+                self.updateTableViewAnimated()
+                
+            default:
+                self.updateTableViewAnimated()
+            }
         }
     }
     
@@ -142,6 +147,8 @@ final class ImageListViewController: UIViewController {
             return
         }
         
+        cell.photo = photo
+        
         cell.currentImageURL = photo.thumbImageURL
         cell.picture.kf.indicatorType = .none
         
@@ -181,6 +188,7 @@ final class ImageListViewController: UIViewController {
         ) { result in
             switch result {
             case .success(_):
+                print("photo.id=\(photo.id)")
                 if cell.currentImageURL == photo.thumbImageURL {
                     DispatchQueue.main.async {
                         cell.addGradientIfNeeded()
@@ -247,7 +255,38 @@ extension ImageListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ImageListCell.reuseIdentifier, for: indexPath)
         guard let imageListCell = cell as? ImageListCell else { return UITableViewCell() }
+        
+        imageListCell.delegate = self
+        
         configCell(for: imageListCell, with: indexPath)
         return imageListCell
+    }
+}
+
+// MARK: - ImageListCellDelegate
+
+extension ImageListViewController: ImageListCellDelegate {
+    func imagesListCellDidTapLike(_ cell: ImageListCell, photoID: String, isLike: Bool) {
+        cell.likeBtn.isEnabled = false
+        imageListService.changeLike(photoID: photoID, isLike: isLike) { result in
+            DispatchQueue.main.async {
+                cell.likeBtn.isEnabled = true
+                switch result{
+                case .success:
+                    cell.isLiked = isLike
+                case .failure(let error):
+                    
+                    cell.isLiked = !isLike
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Constants
+
+private extension ImageListViewController {
+    enum Constants {
+        static let defaultCellHeight: CGFloat = 200
     }
 }
