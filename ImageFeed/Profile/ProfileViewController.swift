@@ -10,23 +10,6 @@ import UIKit
 
 final class ProfileViewController: UIViewController {
     
-    private enum Constants {
-        
-        static let globalLeadingAndRightAnchor: CGFloat = 16
-        static let globalTopAnchor: CGFloat = 8
-        static let globalOneLineUILabelNumberOfLines: Int = 1
-        static let globalFontSizeUILabelStandart: CGFloat = 13
-        
-        static let profileImageViewTopAnchor: CGFloat = 32
-        static let profileImageViewHeightAndWidth: CGFloat = 70
-        static let profileImageViewCornerRadius: CGFloat = 35
-        
-        static let fullNameUILabelFontSize: CGFloat = 23
-        
-        static let logoutUIButtonRightAnchor: CGFloat = -16
-        static let logoutUIButtonTopAnchor: CGFloat = 45
-    }
-    
     // MARK: - UI Elements
     private lazy var profileImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(resource: .avatarPlaceholder))
@@ -74,6 +57,8 @@ final class ProfileViewController: UIViewController {
     }()
     
     private let profileService = ProfileService.shared
+    private let profileLogoutService = ProfileLogoutService.shared
+    
     private var profileImageServiceObserver: NSObjectProtocol?
     
     override func viewDidLoad() {
@@ -160,9 +145,12 @@ final class ProfileViewController: UIViewController {
         
         ProfileService.shared.cleanProfile()
         ProfileImageService.shared.cleanAvatarURL()
+        profileLogoutService.logout()
         
         KingfisherManager.shared.cache.clearMemoryCache()
         KingfisherManager.shared.cache.clearDiskCache()
+        
+        
         
         switchToSplashViewController()
     }
@@ -176,7 +164,6 @@ final class ProfileViewController: UIViewController {
         }
         
         let splashViewController = SplashViewController()
-        
         window.rootViewController = splashViewController
     }
     
@@ -233,5 +220,24 @@ final class ProfileViewController: UIViewController {
     
     private func setupButtonTarget() {
         logoutUIButton.addTarget(self, action: #selector(didTapLogoutBtn), for: .touchUpInside)
+    }
+    
+    // MARK: - Profile Constants enum
+    
+    private enum Constants {
+        
+        static let globalLeadingAndRightAnchor: CGFloat = 16
+        static let globalTopAnchor: CGFloat = 8
+        static let globalOneLineUILabelNumberOfLines: Int = 1
+        static let globalFontSizeUILabelStandart: CGFloat = 13
+        
+        static let profileImageViewTopAnchor: CGFloat = 32
+        static let profileImageViewHeightAndWidth: CGFloat = 70
+        static let profileImageViewCornerRadius: CGFloat = 35
+        
+        static let fullNameUILabelFontSize: CGFloat = 23
+        
+        static let logoutUIButtonRightAnchor: CGFloat = -16
+        static let logoutUIButtonTopAnchor: CGFloat = 45
     }
 }

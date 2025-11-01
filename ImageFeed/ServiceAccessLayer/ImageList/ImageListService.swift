@@ -100,10 +100,9 @@ final class ImagesListService {
             guard let self else {return}
             switch result {
             case .success:
-                // Вместо прпавильного замыкания отрабатывает это... Что не так?
                 DispatchQueue.main.async {
                     self.isLiking = false
-                    completion(.success(()))
+                    completion( .success( () ) )
                 }
             case .failure(let error):
                 print("Error change like photo: \(error)")
