@@ -188,7 +188,6 @@ final class ImageListViewController: UIViewController {
         ) { result in
             switch result {
             case .success(_):
-                print("photo.id=\(photo.id)")
                 if cell.currentImageURL == photo.thumbImageURL {
                     DispatchQueue.main.async {
                         cell.addGradientIfNeeded()
@@ -275,7 +274,7 @@ extension ImageListViewController: ImageListCellDelegate {
                 case .success:
                     cell.isLiked = isLike
                 case .failure(let error):
-                    
+                    print("[ImageListViewController: ImageListCellDelegate, imagesListCellDidTapLike], ошибка: \(error)..")
                     cell.isLiked = !isLike
                 }
             }
