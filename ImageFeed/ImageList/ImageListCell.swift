@@ -72,8 +72,8 @@ final class ImageListCell: UITableViewCell {
         picture.image = nil
         publishDate.text = nil
         gradientAdded = false
-        isLiked = false
-        currentImageURL = nil
+        //        isLiked = false
+        //        currentImageURL = nil
         picture.layer.sublayers?.removeAll { $0 is CAGradientLayer }
         picture.backgroundColor = .clear
         
@@ -154,7 +154,7 @@ final class ImageListCell: UITableViewCell {
     
     @objc private func likeButtonTapped(_ sender: Any) {
         guard let photo else {return}
-        delegate?.imagesListCellDidTapLike(self, photoID: photo.id, isLike: !isLiked)
+        delegate?.imagesListCellDidTapLike(self, photoID: photo.id, isLikeToSet: !isLiked)
     }
 }
 

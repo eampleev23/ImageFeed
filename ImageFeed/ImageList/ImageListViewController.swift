@@ -130,9 +130,9 @@ final class ImageListViewController: UIViewController {
         guard indexPath.row < imageListService.photos.count else { return }
         
         let photo = imageListService.photos[indexPath.row]
+        cell.photo = photo
         cell.isLiked = photo.isLiked
         cell.publishDate.text = formatDate(photo.createdAt)
-        
         loadImageForCell(cell, photo: photo)
     }
     
@@ -265,17 +265,22 @@ extension ImageListViewController: UITableViewDataSource {
 // MARK: - ImageListCellDelegate
 
 extension ImageListViewController: ImageListCellDelegate {
-    func imagesListCellDidTapLike(_ cell: ImageListCell, photoID: String, isLike: Bool) {
+    
+    func imagesListCellDidTapLike(_ cell: ImageListCell, photoID: String, isLikeToSet: Bool) {
         cell.likeBtn.isEnabled = false
-        imageListService.changeLike(photoID: photoID, isLike: isLike) { result in
+        imageListService.changeLike(photoID: photoID, isLikeToSet: isLikeToSet) { result in
             DispatchQueue.main.async {
                 cell.likeBtn.isEnabled = true
                 switch result{
                 case .success:
-                    cell.isLiked = isLike
+                    if let index = self.imageListService.photos.firstIndex(where: { $0.id == photoID }) {
+                        // Обновляем состояние в данных
+                        self.imageListService.photos[index].isLiked = isLikeToSet
+                        cell.isLiked = isLikeToSet
+                    }
                 case .failure(let error):
                     print("[ImageListViewController: ImageListCellDelegate, imagesListCellDidTapLike], ошибка: \(error)..")
-                    cell.isLiked = !isLike
+                    cell.isLiked = !isLikeToSet
                 }
             }
         }

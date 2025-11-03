@@ -74,7 +74,7 @@ final class ImagesListService {
         fetchTask?.resume()
     }
     
-    func changeLike(photoID: String, isLike: Bool, _ completion: @escaping (Result <Void, Error>) -> Void) {
+    func changeLike(photoID: String, isLikeToSet: Bool, _ completion: @escaping (Result <Void, Error>) -> Void) {
         
         guard !isLiking else {return}
         isLiking = true
@@ -85,7 +85,14 @@ final class ImagesListService {
         }
         
         var request: URLRequest = URLRequest(url:url)
-        request.httpMethod = "POST"
+        
+        if isLikeToSet == true {
+            request.httpMethod = "POST"
+        } else {
+            request.httpMethod = "DELETE"
+        }
+        
+        
         guard let token = OAuth2TokenStorage.shared.token else {
             let error = NSError(domain: "ProfileImageService", code: 401, userInfo: [NSLocalizedDescriptionKey: "Authorization token missing"])
             print("[ImageListService, fetchPhotosNextPage]: authError - отсутствует токен авторизации: \(error)")
