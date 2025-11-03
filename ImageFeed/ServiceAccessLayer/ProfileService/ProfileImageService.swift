@@ -41,7 +41,7 @@ final class ProfileImageService {
             task = session.objectTask(for: request) { [weak self] (result: Result<UserResult, Error>) in
                 switch result {
                 case .success(let userResult):
-                    let avatarURLString = userResult.profileImage.small
+                    let avatarURLString = userResult.profileImage.large
                     
                     guard !avatarURLString.isEmpty,
                           URL(string: avatarURLString) != nil else {
@@ -51,15 +51,15 @@ final class ProfileImageService {
                         }
                         return
                     }
-                    self?.avatarURL = userResult.profileImage.small
+                    self?.avatarURL = userResult.profileImage.large
                     
                     DispatchQueue.main.async {
-                        completion(.success(userResult.profileImage.small))
+                        completion(.success(userResult.profileImage.large))
                         NotificationCenter.default
                             .post(
                                 name: ProfileImageService.didChangeNotification,
                                 object: self,
-                                userInfo: ["URL": userResult.profileImage.small])
+                                userInfo: ["URL": userResult.profileImage.large])
                     }
                     
                 case .failure(let error):

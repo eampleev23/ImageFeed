@@ -8,7 +8,7 @@
 import Foundation
 
 struct ProfileImage: Decodable {
-    let small: String
+    let large: String
 }
 
 struct Profile {
