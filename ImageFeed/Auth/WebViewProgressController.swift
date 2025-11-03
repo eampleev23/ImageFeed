@@ -6,7 +6,7 @@ final class WebViewProgressController: NSObject {
     
     // MARK: - Constants
     private enum Constants {
-        static let progressTintColor = UIColor(red: 26/255, green: 27/255, blue: 34/255, alpha: 1.0)
+        static let progressTintColor = UIColor(.ypWhite)
         static let trackTintColor = UIColor.clear
         static let height: CGFloat = 2
         static let fakeProgressStep: Float = 0.015
