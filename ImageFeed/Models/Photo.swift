@@ -8,7 +8,6 @@
 import Foundation
 import UIKit
 
-// Вместо struct Photo используйте class
 class Photo {
     let id: String
     let size: CGSize
@@ -16,7 +15,7 @@ class Photo {
     let welcomeDescription: String?
     let thumbImageURL: String
     let largeImageURL: String
-    var isLiked: Bool // Теперь это var
+    var isLiked: Bool
     
     init(id: String, size: CGSize, createdAt: Date?, welcomeDescription: String?, thumbImageURL: String, largeImageURL: String, isLiked: Bool) {
         self.id = id

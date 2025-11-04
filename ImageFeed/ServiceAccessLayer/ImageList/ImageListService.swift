@@ -20,6 +20,13 @@ final class ImagesListService {
     private var isFetching = false
     private var isLiking = false
     
+    private let iso8601DateFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+//        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
+    }()
+    
     //MARK: - Network methods
     
     func fetchPhotosNextPage(){
@@ -125,8 +132,9 @@ final class ImagesListService {
     private func convertToPhoto(from result: PhotoResult) -> Photo {
         let size = CGSize(width: result.width, height: result.height)
         
-        let dateFormatter = ISO8601DateFormatter()
-        let createdAt = result.createdAt.flatMap { dateFormatter.date(from: $0) }
+        //        let dateFormatter = ISO8601DateFormatter()
+        //        let createdAt = result.createdAt.flatMap { dateFormatter.date(from: $0) }
+        let createdAt = result.createdAt.flatMap { iso8601DateFormatter.date(from: $0) }
         
         return Photo(
             id: result.id,
