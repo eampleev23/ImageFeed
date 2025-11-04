@@ -44,7 +44,8 @@ final class ProfileViewController: UIViewController {
         labelView.translatesAutoresizingMaskIntoConstraints = false
         labelView.font = UIFont.systemFont(ofSize: Constants.globalFontSizeUILabelStandart, weight: .regular)
         labelView.textColor = YPColors.white
-        labelView.numberOfLines = Constants.globalOneLineUILabelNumberOfLines
+        labelView.numberOfLines = Constants.bioUILabelNumberOfLines
+        labelView.lineBreakMode = .byWordWrapping
         return labelView
     }()
     
@@ -99,9 +100,7 @@ final class ProfileViewController: UIViewController {
         ? ""
         : profile.loginName
         
-        bioUILabelView.text = ((profile.bio?.isEmpty) != nil)
-        ? ""
-        : profile.bio
+        bioUILabelView.text = profile.bio ?? ""
         
     }
     
@@ -207,6 +206,10 @@ final class ProfileViewController: UIViewController {
                 equalTo: nicknameUILabelView.bottomAnchor,
                 constant: Constants.globalTopAnchor
             ),
+            bioUILabelView.trailingAnchor.constraint( // ДОБАВЬТЕ ЭТОТ КОНСТРЕЙНТ
+                equalTo: view.safeAreaLayoutGuide.trailingAnchor,
+                constant: -Constants.globalLeadingAndRightAnchor
+                                                    ),
             logoutUIButton.rightAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.rightAnchor,
                 constant: Constants.logoutUIButtonRightAnchor
@@ -236,6 +239,8 @@ final class ProfileViewController: UIViewController {
         static let profileImageViewCornerRadius: CGFloat = 35
         
         static let fullNameUILabelFontSize: CGFloat = 23
+        
+        static let bioUILabelNumberOfLines: Int = 3
         
         static let logoutUIButtonRightAnchor: CGFloat = -16
         static let logoutUIButtonTopAnchor: CGFloat = 45
