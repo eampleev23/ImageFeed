@@ -7,29 +7,6 @@
 
 import Foundation
 
-struct Profile {
-    let userName: String
-    let name: String
-    let loginName: String
-    let bio: String
-}
-
-// Сюда парсится ответ на запрос информации о профиле (соответствует по структуре ответу от апи)
-struct ProfileResult: Codable {
-    let username: String
-    let firstName: String
-    let lastName: String
-    let bio: String?
-    
-    private enum CodingKeys: String, CodingKey {
-        case username
-        case firstName = "first_name"
-        case lastName = "last_name"
-        case bio
-        
-    }
-}
-
 final class ProfileService {
     
     static let shared = ProfileService()
@@ -45,22 +22,23 @@ final class ProfileService {
         guard let request = makeProfileRequest(token: token) else {
             print("[ProfileService]: invalidRequest - не удалось создать URL запроса")
             DispatchQueue.main.async {
-                completion(.failure(URLError(.badURL)))
+                completion(.failure(AppError.invalidRequest))
             }
             return
         }
         
-        // Используем новый универсальный метод
         task = urlSession.objectTask(for: request) { [weak self] (result: Result<ProfileResult, Error>) in
             switch result {
             case .success(let profileResult):
+                
                 let profile = Profile(
                     userName: profileResult.username,
-                    name: "\(profileResult.firstName) \(profileResult.lastName)",
-                    loginName: "@\(profileResult.username)",
-                    bio: profileResult.bio ?? ""
+                    name: self?.formatName(firstName: profileResult.firstName, lastName: profileResult.lastName) ?? "",
+                    loginName: self?.formatLoginName(username: profileResult.username) ?? "",
+                    bio: profileResult.bio
                 )
                 self?.profile = profile
+                
                 
                 DispatchQueue.main.async {
                     completion(.success(profile))
@@ -68,14 +46,41 @@ final class ProfileService {
                 
             case .failure(let error):
                 print("[ProfileService]: profileRequestError - \(error.localizedDescription)")
+                
+                let finalError: Error
+                if let appError = error as? AppError, appError.statusCode == 404 {
+                    finalError = AppError.profileNotFound
+                } else {
+                    finalError = error
+                }
                 DispatchQueue.main.async {
-                    completion(.failure(error))
+                    completion(.failure(finalError))
                 }
             }
             self?.task = nil
         }
         
         task?.resume()
+    }
+    
+    private func formatName(firstName: String?, lastName: String?) -> String {
+        
+        switch (firstName, lastName) {
+        case (let first?, let last?):
+            return "\(first) \(last)"
+        case (let first?, nil):
+            return first
+        case (nil, let last?):
+            return last
+        case (nil, nil):
+            return ""
+        }
+    }
+    
+    private func formatLoginName(username: String?) -> String {
+        
+        guard let username = username, !username.isEmpty else { return "" }
+        return "@\(username)"
     }
     
     private func makeProfileRequest(token: String) -> URLRequest? {

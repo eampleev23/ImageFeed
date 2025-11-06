@@ -7,23 +7,7 @@
 
 import Foundation
 
-struct UserResult: Decodable {
-    let profileImage: ProfileImage
-    
-    enum CodingKeys: String, CodingKey {
-        case profileImage = "profile_image"
-    }
-}
-
-struct ProfileImage: Decodable {
-    let small: String
-}
-
 final class ProfileImageService {
-    
-    private enum NetworkError: Error {
-        case invalidURL
-    }
     
     private var task: URLSessionTask?
     static let shared = ProfileImageService()
@@ -42,14 +26,14 @@ final class ProfileImageService {
             guard let token = OAuth2TokenStorage.shared.token else {
                 let error = NSError(domain: "ProfileImageService", code: 401, userInfo: [NSLocalizedDescriptionKey: "Authorization token missing"])
                 print("[ProfileImageService]: authError - отсутствует токен авторизации: \(error)")
-                completion(.failure(NSError(domain: "ProfileImageService", code: 401, userInfo: [NSLocalizedDescriptionKey: "Authorization token missing"])))
+                completion(.failure(AppError.unauthorized))
                 return
             }
             
             guard let request = makeProfileRequest(token: token, username: username) else {
                 print("[ProfileImageService]: invalidRequest - не удалось создать URL запроса для пользователя: \(username)")
                 DispatchQueue.main.async {
-                    completion(.failure(URLError(.badURL)))
+                    completion(.failure(AppError.invalidRequest))
                 }
                 return
             }
@@ -57,21 +41,42 @@ final class ProfileImageService {
             task = session.objectTask(for: request) { [weak self] (result: Result<UserResult, Error>) in
                 switch result {
                 case .success(let userResult):
-                    self?.avatarURL = userResult.profileImage.small
+                    let avatarURLString = userResult.profileImage.large
+                    
+                    guard !avatarURLString.isEmpty,
+                          URL(string: avatarURLString) != nil else {
+                        print("[ProfileImageService]: invalidAvatarURL - получен некорректный URL аватара: \(avatarURLString)")
+                        DispatchQueue.main.async {
+                            completion(.failure(AppError.invalidAvatarURL))
+                        }
+                        return
+                    }
+                    self?.avatarURL = userResult.profileImage.large
                     
                     DispatchQueue.main.async {
-                        completion(.success(userResult.profileImage.small))
+                        completion(.success(userResult.profileImage.large))
                         NotificationCenter.default
                             .post(
                                 name: ProfileImageService.didChangeNotification,
                                 object: self,
-                                userInfo: ["URL": userResult.profileImage.small])
+                                userInfo: ["URL": userResult.profileImage.large])
                     }
                     
                 case .failure(let error):
                     print("[ProfileImageService]: imageRequestError - \(error.localizedDescription), пользователь: \(username)")
+                    let finalError: Error
+                    if let appError = error as? AppError {
+                        switch appError {
+                        case .serverError(let statusCode) where statusCode == 404:
+                            finalError = AppError.avatarNotFound
+                        default:
+                            finalError = error
+                        }
+                    } else {
+                        finalError = error
+                    }
                     DispatchQueue.main.async {
-                        completion(.failure(error))
+                        completion(.failure(finalError))
                     }
                 }
                 self?.task = nil
@@ -90,31 +95,6 @@ final class ProfileImageService {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return request
     }
-    
-    // Функция для вывода сырого JSON
-    private func printRawJSON(data: Data) {
-        if let jsonString = String(data: data, encoding: .utf8) {
-            print("=== RAW JSON RESPONSE ===")
-            print(jsonString)
-            print("=== END OF JSON ===")
-        } else {
-            print("Не удалось преобразовать данные в строку")
-        }
-        
-        // Альтернативный вариант: красивый вывод с форматированием
-        do {
-            let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
-            let prettyData = try JSONSerialization.data(withJSONObject: jsonObject, options: .prettyPrinted)
-            if let prettyString = String(data: prettyData, encoding: .utf8) {
-                print("=== PRETTY JSON ===")
-                print(prettyString)
-                print("=== END OF PRETTY JSON ===")
-            }
-        } catch {
-            print("Не удалось отформатировать JSON: \(error)")
-        }
-    }
-    
 }
 
 extension ProfileImageService {

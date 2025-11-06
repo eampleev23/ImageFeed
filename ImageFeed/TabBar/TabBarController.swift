@@ -8,7 +8,7 @@
 import UIKit
 final class TabBarController: UITabBarController {
     
-    private enum TabBarConstants {
+    private enum Constants {
         static let tabBarItemImageFeedNoActive = "feed_no_active"
         static let tabBarItemImageFeedActive = "feed_active"
         static let tabBarItemImageProfileActive = "profile_active"
@@ -68,13 +68,13 @@ final class TabBarController: UITabBarController {
         
         imageListViewController.tabBarItem = UITabBarItem(
             title: "",
-            image: UIImage(named: TabBarConstants.tabBarItemImageFeedNoActive),
-            selectedImage: UIImage(named: TabBarConstants.tabBarItemImageFeedActive)
+            image: UIImage(named: Constants.tabBarItemImageFeedNoActive),
+            selectedImage: UIImage(named: Constants.tabBarItemImageFeedActive)
         )
         profileViewController.tabBarItem = UITabBarItem(
             title: "",
-            image: UIImage(named: TabBarConstants.tabBarItemImageProfileNoActive),
-            selectedImage: UIImage(named: TabBarConstants.tabBarItemImageProfileActive)
+            image: UIImage(named: Constants.tabBarItemImageProfileNoActive),
+            selectedImage: UIImage(named: Constants.tabBarItemImageProfileActive)
         )
         
         self.viewControllers = [imageListViewController, profileViewController]
