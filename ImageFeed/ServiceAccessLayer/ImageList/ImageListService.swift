@@ -9,30 +9,26 @@ import Foundation
 
 final class ImagesListService {
     
-    private(set) var photos: [Photo] = []
+    //MARK: - Properties
     
+    private(set) var photos: [Photo] = []
     static let didChangeNotification = Notification.Name(rawValue: "ImageListServiceDidChange")
     
     private var fetchTask: URLSessionTask?
-    
     private var nextPage = 1
-    
     private var isFetching = false
     private var isLiking = false
     
     private let iso8601DateFormatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
-//        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         formatter.formatOptions = [.withInternetDateTime]
         return formatter
     }()
     
-    //MARK: - Network methods
+    //MARK: - Public Methods
     
     func fetchPhotosNextPage(){
-        
         guard !isFetching else {return}
-        
         isFetching = true
         
         guard let url = AppConstants.getPhotosURL(page: nextPage, perPage: 20) else {
@@ -41,7 +37,6 @@ final class ImagesListService {
         }
         
         var request = URLRequest(url:url)
-        
         guard let token = OAuth2TokenStorage.shared.token else {
             let error = NSError(domain: "ProfileImageService", code: 401, userInfo: [NSLocalizedDescriptionKey: "Authorization token missing"])
             print("[ImageListService, fetchPhotosNextPage]: authError - отсутствует токен авторизации: \(error)")
@@ -81,7 +76,11 @@ final class ImagesListService {
         fetchTask?.resume()
     }
     
-    func changeLike(photoID: String, isLikeToSet: Bool, _ completion: @escaping (Result <Void, Error>) -> Void) {
+    func changeLike(
+        photoID: String,
+        isLikeToSet: Bool,
+        _ completion: @escaping (Result <Void, Error>) -> Void
+    ) {
         
         guard !isLiking else {return}
         isLiking = true
@@ -101,7 +100,11 @@ final class ImagesListService {
         
         
         guard let token = OAuth2TokenStorage.shared.token else {
-            let error = NSError(domain: "ProfileImageService", code: 401, userInfo: [NSLocalizedDescriptionKey: "Authorization token missing"])
+            let error = NSError(
+                domain: "ProfileImageService",
+                code: 401,
+                userInfo: [NSLocalizedDescriptionKey: "Authorization token missing"]
+            )
             print("[ImageListService, fetchPhotosNextPage]: authError - отсутствует токен авторизации: \(error)")
             return
         }
@@ -129,11 +132,10 @@ final class ImagesListService {
         fetchTask?.resume()
     }
     
+    //MARK: - Private Methods
+    
     private func convertToPhoto(from result: PhotoResult) -> Photo {
         let size = CGSize(width: result.width, height: result.height)
-        
-        //        let dateFormatter = ISO8601DateFormatter()
-        //        let createdAt = result.createdAt.flatMap { dateFormatter.date(from: $0) }
         let createdAt = result.createdAt.flatMap { iso8601DateFormatter.date(from: $0) }
         
         return Photo(

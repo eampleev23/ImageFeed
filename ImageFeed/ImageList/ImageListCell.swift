@@ -72,8 +72,6 @@ final class ImageListCell: UITableViewCell {
         picture.image = nil
         publishDate.text = nil
         gradientAdded = false
-        //        isLiked = false
-        //        currentImageURL = nil
         picture.layer.sublayers?.removeAll { $0 is CAGradientLayer }
         picture.backgroundColor = .clear
         
