@@ -8,7 +8,8 @@
 import Foundation
 enum AppError: Error, LocalizedError {
     
-    // Network errors
+    //MARK: - Network
+    
     case networkError(description: String)
     case invalidRequest
     case parsingError
@@ -16,7 +17,8 @@ enum AppError: Error, LocalizedError {
     case unauthorized
     case serverError(statusCode: Int)
     
-    // Auth errors
+    //MARK: - Auth
+    
     case authFailed
     case tokenExpired
     case invalidCode
@@ -24,7 +26,8 @@ enum AppError: Error, LocalizedError {
     case tokenValidationFailed
     case insufficientScope
     
-    // Profile errors
+    //MARK: - Profile
+    
     case profileLoadFailed
     case avatarLoadFailed
     case profileNotFound
@@ -32,9 +35,12 @@ enum AppError: Error, LocalizedError {
     case avatarNotFound
     case invalidAvatarURL
     
-    // UI errors
+    //MARK: - UI
+    
     case imageLoadFailed
     case viewConfigurationError
+    
+    //MARK: - Computed properties
     
     var isNetworkError: Bool {
         switch self {
@@ -48,7 +54,7 @@ enum AppError: Error, LocalizedError {
     var isAuthError: Bool {
         switch self {
         case .authFailed, .tokenExpired, .invalidCode, .authCancelled,
-             .unauthorized, .tokenValidationFailed, .insufficientScope:
+                .unauthorized, .tokenValidationFailed, .insufficientScope:
             return true
         default:
             return false
@@ -58,7 +64,7 @@ enum AppError: Error, LocalizedError {
     var isProfileError: Bool {
         switch self {
         case .profileLoadFailed, .avatarLoadFailed, .profileNotFound,
-             .invalidProfileData, .avatarNotFound, .invalidAvatarURL:
+                .invalidProfileData, .avatarNotFound, .invalidAvatarURL:
             return true
         default:
             return false
@@ -71,6 +77,8 @@ enum AppError: Error, LocalizedError {
         }
         return nil
     }
+    
+    //MARK: - LocalizedError
     
     var errorDescription: String? {
         switch self {
@@ -160,10 +168,34 @@ enum AppError: Error, LocalizedError {
         case .insufficientScope:
             return "Обратитесь к администратору для получения прав доступа"
         case .profileLoadFailed, .avatarLoadFailed, .profileNotFound, .invalidProfileData,
-             .avatarNotFound, .invalidAvatarURL:
+                .avatarNotFound, .invalidAvatarURL:
             return "Попробуйте обновить профиль"
         default:
             return "Попробуйте еще раз"
         }
     }
+    
+    // MARK: - Private helpers
+    
+    func serverMessage(for statusCode: Int) -> String {
+        switch statusCode {
+        case 400: return "Неверный запрос к серверу"
+        case 401: return "Требуется авторизация"
+        case 403: return "Доступ запрещён"
+        case 404: return "Ресурс не найден"
+        case 500: return "Внутренняя ошибка сервера"
+        case 502: return "Сервер временно недоступен"
+        case 503: return "Сервис временно недоступен"
+        default:  return "Ошибка сервера: \(statusCode)"
+        }
+    }
+    
+    func serverRecovery(for statusCode: Int) -> String {
+        switch statusCode {
+        case 400...499: return "Проверьте правильность запроса."
+        case 500...599: return "Проблема на стороне сервера, попробуйте позже."
+        default: return "Попробуйте ещё раз."
+        }
+    }
+    
 }
